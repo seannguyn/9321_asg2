@@ -63,7 +63,7 @@ GET /actors
 ```
 This API returns all the actors' name. Frontend will do the auto complete and suggest thing.
 
-##### Success response**:
+##### Success response:
 ```json
 {
     "code": 200,
@@ -143,22 +143,18 @@ These errors depend on our model can or cannot handle the input value not in our
 ```
 **genre** only returned when it's not in query
 
-## Workflow
+## [Workflow](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFI7XG4gICAgMDBbbW92aWVfbWV0YWRhdGEuY3N2XS0tPnx0cmFpbmluZ3wwMSgobW9kZWwpKVxuICAgIDEwe2lucHV0fVxuICAgIDExW2RpcmVjdG9yXS0tPjEwXG4gICAgMTJbYWN0b3JdLS0-MTBcbiAgICAxM1tnZW5yZV0uLT4xMFxuICAgIDEwLS0-MDFcbiAgICAwMS0tPnxwcmVkaWN0fDIwe291cHV0fVxuICAgIDIwLS0-MjFbYnVkZ2V0XVxuICAgIDIwLS0-MjJbZ3Jvc3NdXG4gICAgMjAtLT4yM1tyYXRpbmddXG4gICAgMjAuLT4yNFtnZW5yZV0iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGVmYXVsdCJ9fQ)
 ```mermaid
 graph LR;
-    00[director]
-    01[actor]
-    02[genre]
-    10((predict))
-    00-->10
-    01-->10
-    02.->10
-    20[budget]
-    21[gross]
-    22[rating]
-    23[genre]
-    10-->20
-    10-->21
-    10-->22
-    10.->23
+    00[movie_metadata.csv]-->|training|01((model))
+    10{input}
+    11[director]-->10
+    12[actor]-->10
+    13[genre].->10
+    10-->01
+    01-->|predict|20{ouput}
+    20-->21[budget]
+    20-->22[gross]
+    20-->23[rating]
+    20.->24[genre]
 ```
