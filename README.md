@@ -144,6 +144,7 @@ These errors depend on our model can or cannot handle the input value not in our
 **genre** only returned when it's not in query
 
 ## [Workflow](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFI7XG4gICAgMDBbbW92aWVfbWV0YWRhdGEuY3N2XS0tPnx0cmFpbmluZ3wwMSgobW9kZWwpKVxuICAgIDEwe2lucHV0fVxuICAgIDExW2RpcmVjdG9yXS0tPjEwXG4gICAgMTJbYWN0b3JdLS0-MTBcbiAgICAxM1tnZW5yZV0uLT4xMFxuICAgIDEwLS0-MDFcbiAgICAwMS0tPnxwcmVkaWN0fDIwe291cHV0fVxuICAgIDIwLS0-MjFbYnVkZ2V0XVxuICAgIDIwLS0-MjJbZ3Jvc3NdXG4gICAgMjAtLT4yM1tyYXRpbmddXG4gICAgMjAuLT4yNFtnZW5yZV0iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGVmYXVsdCJ9fQ)
+👆 click it
 ```mermaid
 graph LR;
     00[movie_metadata.csv]-->|training|01((model))
