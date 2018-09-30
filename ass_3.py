@@ -2,11 +2,13 @@ import pandas as pd
 from  MovieTraining import MovieDataTrainingMatrix
 import np
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score, accuracy_score, recall_score
 import matplotlib.pyplot as mp
 
+import math
 
 def hello():
     print("hello world!!")
@@ -39,6 +41,7 @@ def dataCleaning(df):
     df = df[df.budget.notnull()]
     df = df[df.gross.notnull()]
     df = df[df.country == "USA"]
+    pd.to_numeric(df["gross"])
 
     df.dropna(inplace=True)
     return df
@@ -47,21 +50,32 @@ def dataCleaning(df):
 
 def predict(df):
     mm = MovieDataTrainingMatrix.loadDf(df)
-    mm2 = mm.cutOut(0.25)
+    mm2 = mm.cutOut(0.35)
     model = LinearRegression()
-    model.fit(mm.variables,mm.gross)
 
-    predictions = model.predict(mm2.variables)
+
+
+    poly = PolynomialFeatures(degree=2)
+    new_vairables = poly.fit_transform(mm.variables)
+    new_gross = poly.fit_transform(mm.gross)
+
+
+    model.fit(new_vairables,new_gross)
+
+    new_mm2_gross = poly.fit_transform(mm2.gross)
+    predictions = model.predict(new_mm2_gross)
     counter=0
     for i,prediction in enumerate(predictions):
-        print("Predicted: {}, Target: {}".format(prediction,mm2.gross[i]))
-        diff = abs(prediction - mm2.gross[i])/ mm2.gross[i]
-        if diff < 0.5 :
-            counter+=1
-        print("Difference percentage {}%".format(diff*100))
-    print("R-squard: {}".format(model.score(mm2.variables, mm2.gross)))
+        print("Predicted gross: {:.2f}, Target: {:.2f}".format(2**(prediction[1]-8),2**(mm2.gross[i][0])))
+        diff = abs(2**(prediction[1]-8) - 2**(mm2.gross[i][0]))/2**(prediction[1]-8)
 
-    print("{} samples has difference less than 50% over {}".format(counter,len(predictions)))
+        tolerance = 0.39
+        if (diff < tolerance):
+             counter+=1
+        #print("Difference percentage {}%".format(diff*100))
+    print("R-squard: {}".format(model.score(new_mm2_gross,predictions)))
+
+    print("{} samples has difference less than {}% of the real goss over {}".format(counter,tolerance*100,len(predictions)))
 
 def predictKnn(df):
     mm = MovieDataTrainingMatrix.loadDf(df)
@@ -79,15 +93,19 @@ if __name__ == '__main__':
     hello()
     df= readData()
     df =dataCleaning(df)
-    #predict(df)
+    predict(df)
     #predictKnn(df)
     df.to_csv("movie_refined.csv")
     df["all_Like"] = df.actor_1_facebook_likes+df.actor_3_facebook_likes+df.actor_2_facebook_likes
     df["buget_duration"]=df.budget/df.duration
-    df.plot.scatter(y="gross",x="budget", title = "buget v gross")
+    df["budget"]=np.log(df["budget"])
+    df["gross"] = np.log(df["gross"])
+    df["all_Like"] = np.log(df["all_Like"])
+    df.plot.scatter(y="budget", x="all_Like", title="buget v likes")
+    #df.plot.scatter(y="gross",x="budget", title = "buget v gross")
     df.plot.scatter(y="gross", x="all_Like", title = "popularity of actors v gross ")
-    df.plot.scatter(y="gross", x="buget_duration",title = "buget_duration v gross")
-    df.plot.scatter(y="gross", x="duration" , title = "duration v gross")
-    df.plot.scatter(y="gross", x="imdb_score", title="imdb-score v gross")
+    # df.plot.scatter(y="gross", x="buget_duration",title = "buget_duration v gross")
+    # df.plot.scatter(y="gross", x="duration" , title = "duration v gross")
+    # df.plot.scatter(y="gross", x="imdb_score", title="imdb-score v gross")
 
     mp.show()

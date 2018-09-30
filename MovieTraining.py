@@ -1,8 +1,11 @@
+import math
+
 class MovieDataTrainingMatrix:
     gross=[]
     budget=[]
     variables=[]
     imdbScore=[]
+
 
 
     @classmethod
@@ -32,16 +35,15 @@ class MovieDataTrainingMatrix:
         imdbScore = []
         directorValueAddingAbility = cls.add_value_adding_ability(df)
         for index, row in df.iterrows():
-            if abs(row["budget"]-row["gross"])/row["budget"]>4:
-                continue
+            # if abs(row["budget"]-row["gross"])/row["budget"]>4:
+            #     continue
             #d1 = row["director_facebook_likes"]
             a1 = row["actor_1_facebook_likes"]
             a2 = row["actor_2_facebook_likes"]
             a3 = row["actor_3_facebook_likes"]
-            variables.append([(a1+a2+a3),row["budget"]/row["duration"],row["movie_facebook_likes"],
-                              directorValueAddingAbility[row["director_name"]]["ability"] * row["budget"]])
-            gross.append([row["gross"]])
-            budget.append([row["budget"]])
+            variables.append([math.log2(a1+a2+a3)])
+            gross.append([math.log2(row["gross"])])
+            budget.append([math.log2(row["budget"])])
             imdbScore.append(row["imdb_score"])
         return MovieDataTrainingMatrix(gross,budget,variables,imdbScore)
 
