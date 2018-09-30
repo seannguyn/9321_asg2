@@ -1,7 +1,7 @@
 # Moive Prediction System
 Basically, we want to provide a data service for investors to predict the **budget**, **gross** etc of a movie which would be directed by the input **director** and acted by the input **actors**.
 
-We use the `movie_metadata.csv` as data source to train a linear regression model.
+We use the [`movie_metadata.csv`](https://www.kaggle.com/suchitgupta60/imdb-data) as data source to train a linear regression model.
 
 We accept 2 kinds of input to provide different prediction:
 
