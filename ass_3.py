@@ -1,11 +1,12 @@
 import pandas as pd
 from  MovieTraining import MovieDataTrainingMatrix
 import np
+from np import maximum
 from sklearn.linear_model import LinearRegression,LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import precision_score, accuracy_score, recall_score
+from sklearn.metrics import precision_score, accuracy_score, recall_score,mean_squared_error
 import matplotlib.pyplot as mp
 
 import math
@@ -112,7 +113,7 @@ def predictrevenueByBudget(df):
         print(" raw prediction: {:.2f}, Target: {} diff {}".format(prediction[0], mm2.gross[i][0],prediction[0] - mm2.gross[i][0]))
         print("     Predicted gross: {:.2f}, Target: {:.2f}".format(2 ** (prediction[0]), 2 ** (mm2.gross[i][0])))
         diff = abs(2 ** (prediction[0]) - 2 ** (mm2.gross[i][0])) / 2 ** (prediction[0])
-        tolerance=0.90
+        tolerance=0.50
         if (diff < tolerance):
             counter += 1
 
@@ -133,30 +134,7 @@ def predictKnn(df):
     print("accuracy:\t", accuracy_score(mm2.gross, predictions))
 
 
-if __name__ == '__main__':
-    hello()
-    df= readData()
-    df =dataCleaning(df)
-    #predict(df)
-    #predictKnn(df)
-    #predictBudget(df)
-    #predictrevenueByBudget(df)
-    df.to_csv("movie_refined.csv")
-    df["all_Like"] = df.actor_1_facebook_likes+df.actor_3_facebook_likes+df.actor_2_facebook_likes
-    df["buget_duration"]=df.budget/df.duration
-    df["budget"]=np.log(df["budget"])
-    df["gross"] = np.log(df["gross"])
-    df["all_Like"] = np.log(df["all_Like"])
-    # df.plot.scatter(y="budget", x="all_Like", title="buget v popularity of actors")
-    # df.plot.scatter(y="gross",x="budget", title = "buget v gross")
-    # df.plot.scatter(y="gross", x="all_Like", title = "popularity of actors v gross ")
-    # # df.plot.scatter(y="gross", x="buget_duration",title = "buget_duration v gross")
-    # df.plot.scatter(y="gross", x="duration" , title = "duration v gross")
-    # df.plot.scatter(y="gross", x="imdb_score", title="imdb-score v gross")
-    # df.plot.scatter(y="imdb_score", x="all_Like", title="imdb-score v popularity")
-    # df.plot.scatter(y="imdb_score", x="budget", title="imdb-score v budget")
-    #mp.show()
-
+def housing():
 
     ##
     df=pd.read_csv("Melbourne_housing_FULL.csv")
@@ -165,7 +143,7 @@ if __name__ == '__main__':
     df.Landsize.fillna(0,inplace=True)
     df.dropna(inplace=True)
 
-    df["Price"] = np.log(df["Price"])
+    df["Price"] = np.log2(df["Price"])
     df["Distance"] = np.multiply(1000,df["Distance"])
     # df.plot.scatter(y="Price", x="Rooms", title="Bathroom v price")
     # df.plot.scatter(y="Price", x="Distance", title="Distance v price")
@@ -198,10 +176,54 @@ if __name__ == '__main__':
     train_y = aim[:int(0.75 * len(var))]
     test_y = aim[int(0.75 * len(var)):]
 
-    model = LinearRegression(fit_intercept=True)
-    #predictions=model()
-    #for i, prediction in enumerate(predictions):
+
+    model = LinearRegression(fit_intercept=True,normalize=True)
     model.fit(train_x, train_y)
+    predictions = model.predict(test_x)
+    print(aim)
+    counter = 0
+    for i, prediction in enumerate(predictions):
+        print(" raw prediction: {:.2f}, Target: {:.2f} diff {:.2f}".format(prediction[0], test_y[i][0],
+                                                                   prediction[0] - test_y[i][0]))
+        print("     Predicted Price: {:.2f}, Target: {:.2f}, dif {:.2f}".format(2 ** (prediction[0]),
+                                                                                2 ** (test_y[i][0]),
+                                                                                2 ** (prediction[0])- 2 ** (test_y[i][0])))
+
+        diff = abs(2 ** (prediction[0]) - 2 ** (test_y[i][0])) / 2 ** (test_y[i][0])
+        print(diff)
+        tolerance=0.30
+        if (diff < tolerance):
+            counter += 1
+        #pass
     print("R-squard: {}".format(model.score(test_x, test_y)))
+    print("MSE: {}".format(np.sqrt(mean_squared_error(test_y,predictions))))
+    print("{} samples has difference less than {}% of the real goss over {}".format(counter, tolerance * 100,
+                                                                                    len(predictions)))
+
+if __name__ == '__main__':
+    hello()
+    df= readData()
+    df =dataCleaning(df)
+    #predict(df)
+    #predictKnn(df)
+    #predictBudget(df)
+    predictrevenueByBudget(df)
+    df.to_csv("movie_refined.csv")
+    df["all_Like"] = df.actor_1_facebook_likes+df.actor_3_facebook_likes+df.actor_2_facebook_likes
+    df["buget_duration"]=df.budget/df.duration
+    df["budget"]=np.log(df["budget"])
+    df["gross"] = np.log(df["gross"])
+    df["all_Like"] = np.log(df["all_Like"])
+    # df.plot.scatter(y="budget", x="all_Like", title="buget v popularity of actors")
+    # df.plot.scatter(y="gross",x="budget", title = "buget v gross")
+    # df.plot.scatter(y="gross", x="all_Like", title = "popularity of actors v gross ")
+    # # df.plot.scatter(y="gross", x="buget_duration",title = "buget_duration v gross")
+    # df.plot.scatter(y="gross", x="duration" , title = "duration v gross")
+    # df.plot.scatter(y="gross", x="imdb_score", title="imdb-score v gross")
+    # df.plot.scatter(y="imdb_score", x="all_Like", title="imdb-score v popularity")
+    # df.plot.scatter(y="imdb_score", x="budget", title="imdb-score v budget")
+    #mp.show()
+
+
 
 
