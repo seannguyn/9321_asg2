@@ -3,5 +3,8 @@ python: "3.6.3"
 install:
   - pip install -r requirements.txt --cache-dir $HOME/.cache/pip
 
+before_script:
+  - export FLASK_DEBUG=1
+
 script:
-  - python ass_3.py
+  - flask test
