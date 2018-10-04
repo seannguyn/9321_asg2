@@ -1,30 +1,20 @@
-# Moive Prediction System
-Basically, we want to provide a data service for investors to predict the **budget**, **gross** etc of a movie which would be directed by the input **director** and acted by the input **actors**.
+# Property Price Prediction System
+Basically, we want to provide a data service for home buyers to predict the **selling price** or potential move in **suburb** which will be determined by the **number of rooms**, **number of bathrooms** and **number of car spaces**
 
-We use the `movie_metadata.csv` as data source to train a linear regression model.
+We will use the [`Melbourne_housing_FULL.csv`](https://www.kaggle.com/anthonypino/melbourne-housing-market#Melbourne_housing_FULL.csv) as our data source to train a linear regression model for price prediction and a k-NN model for suburbs that a buyer can afford with the requirement of the property given.
 
 We accept 2 kinds of input to provide different prediction:
 
-1. `director` and `actor(s)`
+1. `number of bathroom`, `number of bedroom`, `car spaces`, `type` and **`suburb`**
 
-    We'll predict the `budget` this movie will need, the `gross` this movie will produce and the `genre` this movie could be.
+    The prediction result will be the `price` of the given conditions.
 
-2. `director`, `actor(s)` and `genre`
+2. `number of bathroom`, `number of bedroom`, `car spaces`, `type` and **`price`**
 
-    We'll predict the `budget` this movie will need, the `gross` this movie will produce.
+    The prediction result will be the `suburb` which could fit the given conditions.
 
 ## *Advanced funtions (optinal)*
-- Rank of Most popular
-
-    On terms of `actor`, `director`, `movies` , etc
-
-- Actor recommendation
-
-    We'll recommend actors may fits the input combination
-
-- Modify data source and re-train
-
-    It may need to store the data from cvs into a functional databse like MongoDB or PostgreSQL.
+- Heat map of the number of transaction happening in all suburbs
 
 ## API
 We use Flask to build RESTful API.
@@ -59,103 +49,124 @@ and
 
 ### APIs
 ```http
-GET /actors
+GET /basicfilters
 ```
-This API returns all the actors' name. Frontend will do the auto complete and suggest thing.
+This API returns some basic filters information, as the maximum value of `number of bathroom`, `number of bedroom`, `car spaces` and the enum of `type` in the data source.
 
 ##### Success response:
 ```json
 {
     "code": 200,
-    "msg": "actor list",
-    "data": [
-        "Angelina Jolie",
-        "Brad Pitt",
-        ...
-    ]
-}
-```
----
-```http
-GET /directors
-```
-This API returns all the directors' name. Frontend will do the auto complete and suggest thing.
-
-##### Success response:
-```json
-{
-    "code": 200,
-    "msg": "director list",
-    "data": [
-        "James Cameron",
-        "Christopher Nolan",
-        ...
-    ]
-}
-```
----
-```http
-GET /genres
-```
-This API returns all the genres. Frontend will do the auto complete and suggest thing.
-
-##### Success response:
-```json
-{
-    "code": 200,
-    "msg": "genres",
-    "data": [
-        "Action",
-        "Adventure",
-        "Sci-Fi",
-        ...
-    ]
-}
-```
----
-```http
-GET /predict?director={director}&actor={actor,}&genre={genre|}
-```
-The prediction API
-##### parameters
-- **director** the name of the director
-- **actor** the name of actors. It can be a list, divided by `,`
-- **genre** *opntional* the name actors. It can be a list, divided by `|`
-
-##### Possible error code and msg:
-These errors depend on our model can or cannot handle the input value not in our database
-- **400** director not found
-- **400** actor not found
-- **400** genre not found
-
-##### Success response:
-```json
-{
-    "code": 200,
-    "msg": "Predicted successfully",
+    "msg": "basic filters",
     "data": {
-        "budget": 12345,
-        "gross": 123456,
-        "rating": 3.5,
-        "genre": "Action|Adventure|Fantasy|Sci-Fi"
+        "max_bedroom": 31,
+        "max_bathroom": 5,
+        "max_carspace": 3,
+        "type" : [
+            "house",
+            "unit"
+        ]
     }
 }
 ```
-**genre** only returned when it's not in query
+---
+```http
+GET /suburbs
+```
+This API returns all the suburbs with their postcodes. The key is the id of this suburb. Frontend will do the auto complete and suggest thing.
 
-## [Workflow](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFI7XG4gICAgMDBbbW92aWVfbWV0YWRhdGEuY3N2XS0tPnx0cmFpbmluZ3wwMSgobW9kZWwpKVxuICAgIDEwe2lucHV0fVxuICAgIDExW2RpcmVjdG9yXS0tPjEwXG4gICAgMTJbYWN0b3JdLS0-MTBcbiAgICAxM1tnZW5yZV0uLT4xMFxuICAgIDEwLS0-MDFcbiAgICAwMS0tPnxwcmVkaWN0fDIwe291cHV0fVxuICAgIDIwLS0-MjFbYnVkZ2V0XVxuICAgIDIwLS0-MjJbZ3Jvc3NdXG4gICAgMjAtLT4yM1tyYXRpbmddXG4gICAgMjAuLT4yNFtnZW5yZV0iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGVmYXVsdCJ9fQ)
+##### Success response:
+```json
+{
+    "code": 200,
+    "msg": "suburbs and postcodes",
+    "data": {
+        "1": {
+            "suburb": "Abbotsford",
+            "postcode": "3067"
+        },
+        "2": {
+            "suburb": "Airport West",
+            "postcode": "3042"
+        },
+        ...
+    }
+}
+```
+---
+```http
+GET /maxprice
+```
+This API returns maximum value of `price`.
+
+##### Success response:
+```json
+{
+    "code": 200,
+    "msg": "max price",
+    "data": {
+        "max_price": 999999
+    }
+}
+```
+---
+```http
+GET /predict?num_bedroom={}&num_bathroom={}&num_carspace={}&type={,}&suburb={}&price={}
+```
+The prediction API
+##### parameters
+- **num_bedroom** the number of bedroom user selects
+- **num_bathroom** the number of bathroom
+- **num_carspace** the number of car space
+- **type** the type of houses. It can be a list, divided by `,`
+- ***suburb** optinal* suburb id. It is mutual exclusive with `price`
+- ***price** optinal* the price user sets
+
+##### Possible error code and msg:
+These errors depend on our model can or cannot handle the input value not in our database
+- **400** basic filters param missing
+- **400** `suburb` or `price` missing
+- **400** have both `suburb` and `price`
+
+##### Success response:
+```json
+{
+    "code": 200,
+    "msg": "Predicted suburb successfully",
+    "data": {
+        "suburb": {
+            "id": 123,
+            "suburb": "Airport West",
+            "postcode": "3042"
+        }
+    }
+}
+or
+{
+    "code": 200,
+    "msg": "Predicted price successfully",
+    "data": {
+        "price": 124555
+    }
+}
+```
+
+## [Workflow](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFI7XG4gICAgMDAtLT58dHJhaW5pbmd8MDIoKGstTk4gbW9kZWwpKVxuICAgIDEwe2Jhc2ljIGZpbHRlcnN9XG4gICAgMTFbbnVtYmVyIG9mIGJhdGhyb29tXS0tPjEwXG4gICAgMTJbbnVtYmVyIG9mIGJlZHJvb21dLS0-MTBcbiAgICAxM1tudW1iZXIgb2YgY2FyIHNwYWNlc10tLT4xMFxuICAgIDE0W3N1YnVyYl0tLT4xNVtpbnB1dF1cbiAgICAxMC0tPjE1XG4gICAgMTAtLT4xN1tpbnB1dF1cbiAgICAxNltwcmljZV0tLT4xN1xuICAgIDE1LS0-MDFcbiAgICAwMFtNZWxib3VybmVfaG91c2luZ19GVUxMLmNzdl0tLT58dHJhaW5pbmd8MDEoKGxpbmVhciByZWdyZXNzaW9uIG1vZGVsKSlcbiAgICAwMS0tPnxwcmVkaWN0fDIwW3ByaWNlXVxuICAgIDE3LS0-MDJcbiAgICAwMi0tPnxwcmVkaWN0fDIxW3N1YnVyYl0iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGVmYXVsdCJ9fQ)
 👆 click it
 ```mermaid
 graph LR;
-    00[movie_metadata.csv]-->|training|01((model))
-    10{input}
-    11[director]-->10
-    12[actor]-->10
-    13[genre].->10
-    10-->01
-    01-->|predict|20{ouput}
-    20-->21[budget]
-    20-->22[gross]
-    20-->23[rating]
-    20.->24[genre]
+    00-->|training|02((k-NN model))
+    10{basic filters}
+    11[number of bathroom]-->10
+    12[number of bedroom]-->10
+    13[number of car spaces]-->10
+    14[suburb]-->15[input]
+    10-->15
+    10-->17[input]
+    16[price]-->17
+    15-->01
+    00[Melbourne_housing_FULL.csv]-->|training|01((linear regression model))
+    01-->|predict|20[price]
+    17-->02
+    02-->|predict|21[suburb]
 ```

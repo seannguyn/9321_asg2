@@ -1,9 +1,12 @@
+#!/usr/bin/python3
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
 
-def hello():
-    print("hello world!!")
-    print("start assignment")
-    print("add trvis")
 
+def main():
+    pass
 
 if __name__ == '__main__':
-    hello()
+    main()
