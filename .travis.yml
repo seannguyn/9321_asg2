@@ -7,4 +7,4 @@ before_script:
   - export FLASK_DEBUG=1
 
 script:
-  - flask test
+  - pylint --output-format=text ass_3.py
