@@ -1,13 +1,14 @@
 import pandas as pd
 from  MovieTraining import MovieDataTrainingMatrix
 import np
-from np import maximum
+from numpy import divide,float_power
 from sklearn.linear_model import LinearRegression,LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score, accuracy_score, recall_score,mean_squared_error
 import matplotlib.pyplot as mp
+from mpl_toolkits.mplot3d import Axes3D
 
 import math
 
@@ -37,10 +38,9 @@ def dataCleaning(df):
                      "num_user_for_reviews",
                      "cast_total_facebook_likes"],
             inplace=True)
-    df = df.replace(0, np.nan)
     df = df[df.gross.notnull()]
     df = df[df.budget.notnull()]
-    df = df[df.gross.notnull()]
+    df = df.replace(0, np.nan)
     df = df[df.country == "USA"]
     pd.to_numeric(df["gross"])
     pd.to_numeric(df["budget"])
@@ -134,6 +134,49 @@ def predictKnn(df):
     print("accuracy:\t", accuracy_score(mm2.gross, predictions))
 
 
+
+def showRegionScattering():
+    ##
+    df=pd.read_csv("Melbourne_housing_FULL.csv")
+    df = df[df.Price.notnull()]
+    df.Car.fillna(0, inplace=True)
+    df.Landsize.fillna(0,inplace=True)
+    df.dropna(inplace=True)
+
+
+    #df["Price"] = np.log2(df["Price"])
+    #df["Distance"] = np.multiply(1000,df["Distance"])
+    print("there is this many group")
+    print(df.groupby('Suburb').nunique())
+    fig = mp.figure()
+    ax = Axes3D(fig)
+
+    cgroup={"Eastern Metropolitan":"blue",
+    "Eastern Victoria":"green",
+    "Northern Metropolitan":"#9b793b",
+    "South-Eastern Metropolitan":"red",
+    "Northern Victoria":"cyan",
+    "Western Metropolitan":"yellow",
+    "Southern Metropolitan":"magenta",
+    "Western Victoria":"black",
+     }
+
+    colors= np.where(df["Regionname"]=="Eastern Metropolitan",'blue','-')
+    colors[df["Regionname"]=="Eastern Victoria"]="green"
+    colors = df["Regionname"].copy()
+    colors.replace(cgroup,inplace=True)
+    print(colors)
+    fig, ax = mp.subplots()
+    for region, group in df.groupby(['Regionname']):
+        ax.scatter(group["Price"], group["Distance"], c=cgroup[region], label=region,alpha=0.6)
+
+    ax.legend(cgroup.keys())
+    mp.xlabel("price")
+    mp.ylabel("Distance")
+    mp.title("price v distance with different region")
+    mp.show()
+
+
 def housing():
 
     ##
@@ -145,31 +188,41 @@ def housing():
 
     df["Price"] = np.log2(df["Price"])
     df["Distance"] = np.multiply(1000,df["Distance"])
-    # df.plot.scatter(y="Price", x="Rooms", title="Bathroom v price")
-    # df.plot.scatter(y="Price", x="Distance", title="Distance v price")
-    mp.show()
+    df.Type.replace({'h':3,'u':2,"t":1},inplace=True)
+    #df.plot.scatter(y="Price", x="Rooms", title="Bathroom v price")
+    #df.plot.scatter(y="Price", x="Distance", title="Distance v price")
+
+
+    #df.plot.scatter(y="Rooms", x="Type", title="Rooms v Bathroom")
+
+
+
+    #df.plot.scatter(x="Price", y="Distance", c=colors)
+
+
     var=[]
     aim=[]
     typeSet=set()
     typeDict=dict()
     for index, row in df.iterrows():
-        nType=row["Type"]
-        if nType not in typeSet:
-            typeSet.add(nType)
-            typeDict[nType] = len(typeSet)
-
-        typeIndex = typeDict[nType]
+        #ax.scatter(row["Price"], row["Distance"], c=group[row['Regionname']], label=row['Regionname'])
+        #ax.scatter(row["Rooms"], row["Distance"], row["Price"], c=group[row['Regionname']],label=row['Regionname'])
         nRooms = row["Rooms"]
-        distance = row["Distance"]
+
         nCars = row["Car"]
-        ln = row["Lattitude"]
-        lon = row["Longtitude"]
+
         landSize = row["Landsize"]
         pc = row["Postcode"]
         numP=row["Propertycount"]
         bathRoom=row["Bathroom"]
-        var.append([nRooms,distance,nCars,ln,lon,landSize,pc,typeIndex,bathRoom])
+        distance = row["Distance"]
+        ln = row["Lattitude"]
+        lon = row["Longtitude"]
+        var.append([nRooms, nCars, row["Type"], bathRoom,distance,ln,lon])
+
+        #var.append([nRooms,distance,nCars,ln,lon,landSize,pc,typeIndex,bathRoom])
         aim.append([row["Price"]])
+
 
     train_x=var[:int(0.75*len(var))]
     test_x = var[int(0.75 * len(var)):]
@@ -211,9 +264,15 @@ if __name__ == '__main__':
     df.to_csv("movie_refined.csv")
     df["all_Like"] = df.actor_1_facebook_likes+df.actor_3_facebook_likes+df.actor_2_facebook_likes
     df["buget_duration"]=df.budget/df.duration
-    df["budget"]=np.log(df["budget"])
-    df["gross"] = np.log(df["gross"])
+    #df["budget"]=np.log(df["budget"])
+    #df["gross"] = np.log(df["gross"])
     df["all_Like"] = np.log(df["all_Like"])
+
+    df["profit/cost"] = divide(df["gross"],df["budget"])
+    df = df[df["profit/cost"] < 4]
+    print(df["profit/cost"])
+    df["33_pow_profit/cost"] = float_power(33,df["profit/cost"])
+    #df.plot.scatter(y="33_pow_profit/cost", x="all_Like", title="p/c v popularity of actors")
     # df.plot.scatter(y="budget", x="all_Like", title="buget v popularity of actors")
     # df.plot.scatter(y="gross",x="budget", title = "buget v gross")
     # df.plot.scatter(y="gross", x="all_Like", title = "popularity of actors v gross ")
@@ -222,7 +281,9 @@ if __name__ == '__main__':
     # df.plot.scatter(y="gross", x="imdb_score", title="imdb-score v gross")
     # df.plot.scatter(y="imdb_score", x="all_Like", title="imdb-score v popularity")
     # df.plot.scatter(y="imdb_score", x="budget", title="imdb-score v budget")
-    #mp.show()
+    #housing()
+    showRegionScattering()
+    mp.show()
 
 
 
