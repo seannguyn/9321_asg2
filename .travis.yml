@@ -5,6 +5,3 @@ install:
 
 before_script:
   - export FLASK_DEBUG=1
-
-script:
-  - pylint --output-format=text ass_3.py
