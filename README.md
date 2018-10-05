@@ -62,7 +62,7 @@ This API returns some basic filters information, as the maximum value of `number
         "max_bedroom": 31,
         "max_bathroom": 5,
         "max_carspace": 3,
-        "type" : [
+        "types" : [
             "house",
             "unit"
         ]
