@@ -1,24 +1,26 @@
 #!/usr/bin/python3
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
 from flask import Flask, request
-from flask_restplus import Resource, Api, reqparse, fields
+from flask_restplus import Resource, Api, fields
 from flask_cors import CORS
 from pymongo import MongoClient
 from MachineLearning.Predictor import Predictor
 import requests
 import json
+from Model.RecordReader import RecordReader
 
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
 # set up mongodb
-MONGODB_URI = "mongodb://sean:comp4920@ds121603.mlab.com:21603/9321_asg3"
+#MONGODB_URI = "mongodb://sean:comp4920@ds121603.mlab.com:21603/9321_asg3"
+MONGODB_URI = "mongodb://COMP9321:comp9321password@ds117422.mlab.com:17422/comp9321"
 client = MongoClient(MONGODB_URI, connectTimeoutMS=30000)
-db = client.get_database("9321_asg3")
+#db = client.get_database("9321_asg3")
+db = client.get_database("comp9321")
+rr = RecordReader(db)
+#set up global predictor
+predictor = Predictor(rr.to_dataframe("melbourne_housing"))
 
 
 """
@@ -32,6 +34,7 @@ Also get things such as restaurants, hospitals, schools, etc, within the vincity
 queryParser = api.parser()
 queryParser.add_argument('bedroom')
 queryParser.add_argument('bathroom')
+queryParser.add_argument('carpark')
 queryParser.add_argument('suburb')
 
 @api.route('/predictPrice')
@@ -43,10 +46,11 @@ class PredictPrice(Resource):
         args        = queryParser.parse_args()
         bedroom     = args.get('bedroom')
         bathroom    = args.get('bathroom')
+        carpark     = args.get('carpark')
         suburb      = args.get('suburb')
 
         # predict price
-        prediction = Predictor.computePrice(int(bedroom),int(bathroom),suburb)
+        prediction = predictor.computePrice(int(bedroom),int(bathroom),int(carpark),suburb)
 
         # get geocode
         resultLocation = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address="+suburb+"&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
@@ -132,3 +136,5 @@ class trendRecord(Resource):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
