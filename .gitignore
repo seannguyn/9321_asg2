@@ -1,2 +1,6 @@
 .DS_STORE
 .vscode
+.idea
+.idea/*
+venv
+venv/*
