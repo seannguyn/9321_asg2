@@ -1,0 +1,33 @@
+.predict-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../images/bg.png');
+    background-size: cover;
+    background-position: center;
+    padding: 20px;
+
+    .predict-filter-container {
+        display: table;
+        margin: auto;
+        .predict-filters {
+            display: flex;
+            .basic-filter {
+                margin: 20px;
+                .basic-filter-title {
+                    text-align: center;
+                    font-size: 13pt;
+                    font-family: 'Comic Sans MS';
+                    margin-top: 20px;
+                }
+            }
+        }
+        Button {
+            float: right;
+            margin-top: 50px;
+        }
+    }
+
+}
