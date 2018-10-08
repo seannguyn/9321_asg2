@@ -1,2 +1,8 @@
 .DS_STORE
 .vscode
+.idea
+.idea/*
+venv
+venv/*
+MachineLearning/__pycache__
+MachineLearning/__pycache__/*
