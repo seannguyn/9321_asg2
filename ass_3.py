@@ -7,20 +7,30 @@ from MachineLearning.Predictor import Predictor
 import requests
 import json
 from Model.RecordReader import RecordReader
+from Model.DataCleanser import DataCleanser
 
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
 # set up mongodb
-#MONGODB_URI = "mongodb://sean:comp4920@ds121603.mlab.com:21603/9321_asg3"
-MONGODB_URI = "mongodb://COMP9321:comp9321password@ds117422.mlab.com:17422/comp9321"
+# SEAN mLab
+MONGODB_URI = "mongodb://sean:comp4920@ds121603.mlab.com:21603/9321_asg3"
 client = MongoClient(MONGODB_URI, connectTimeoutMS=30000)
-#db = client.get_database("9321_asg3")
-db = client.get_database("comp9321")
+db = client.get_database("9321_asg3")
+
+# John mLab
+# MONGODB_URI = "mongodb://COMP9321:comp9321password@ds117422.mlab.com:17422/comp9321"
+# client = MongoClient(MONGODB_URI, connectTimeoutMS=30000)
+# db = client.get_database("comp9321")
+
+
 rr = RecordReader(db)
+# rr.reset_mongodb("Melbourne_housing_FULL.csv")
 #set up global predictor
 predictor = Predictor(rr.to_dataframe("melbourne_housing"))
+
+processor = DataCleanser()
 
 
 """
@@ -51,9 +61,10 @@ class PredictPrice(Resource):
 
         # predict price
         prediction = predictor.computePrice(int(bedroom),int(bathroom),int(carpark),suburb)
+        processedPrediction = processor.processPrediction(prediction)
 
         # get geocode
-        resultLocation = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address="+suburb+"&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
+        resultLocation = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address="+suburb+",Victoria"+"&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
         dataLocation = json.loads(resultLocation.content)
 
         lat = dataLocation['results'][0]['geometry']['location']['lat']
@@ -62,26 +73,32 @@ class PredictPrice(Resource):
 
         # get near by restarant
         resultRestaurant = requests.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+location+"&radius=2000&type=restaurant&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
-        dataRestarant = json.loads(resultRestaurant.content)
+        dataRestaurant = json.loads(resultRestaurant.content)
+        processedRestaurant = processor.processRestaurant(dataRestaurant['results'])
 
         # get near by hospital
         resultHospital = requests.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+location+"&radius=2000&type=hospital&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
         dataHospital = json.loads(resultHospital.content)
+        processedHospital = processor.processHospital(dataHospital['results'])
 
         # get near by school
         resultSchool = requests.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+location+"&radius=2000&type=school&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
         dataSchool = json.loads(resultSchool.content)
+        processedSchool = processor.processSchool(dataSchool['results'])
 
-        # get near by school
+        # get near by supermarket
         resultSupermarket= requests.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+location+"&radius=2000&type=supermarket&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
         dataSupermarket = json.loads(resultSupermarket.content)
+        processedSupermarket = processor.processSupermarket(dataSupermarket['results'])
+
+        saveTrend(int(bedroom),int(bathroom),int(carpark),suburb)
 
         main_data = {
-            "prediction"    : prediction,
-            "restaurant"    : dataRestarant,
-            "hospital"      : dataHospital,
-            "school"        : dataSchool,
-            "supermarket"   : dataSupermarket,
+            "prediction"    : processedPrediction,
+            "restaurant"    : processedRestaurant,
+            "hospital"      : processedHospital,
+            "school"        : processedSchool,
+            "supermarket"   : processedSupermarket,
         }
 
         return main_data, 200
@@ -134,7 +151,32 @@ class trendRecord(Resource):
             }, 200
 
 
+def saveTrend(room, bath, carpark, suburb):
+    trend = db['trendAnalyser']
+
+    suburb = suburb.lower()
+
+    if ( trend.find_one({"suburb": suburb}) == None):
+
+        record = {}
+        record['suburb'] = suburb
+        record['request'] = [{"room": room, "bath": bath, "carpark": carpark}]
+        record['requestCount'] = 1
+
+        # insert
+        trend.insert_one(record)
+
+        return "created"
+
+    else:
+
+        record = trend.find_one({"suburb": suburb})
+        record['requestCount'] = int(record['requestCount']) + 1
+        record['request'].append({"room": room, "bath": bath, "carpark":carpark})
+        trend.replace_one({"suburb": suburb}, record)
+
+        return "updated"
+
+
 if __name__ == '__main__':
     app.run(debug=True)
-
-
