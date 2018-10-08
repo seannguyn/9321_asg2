@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from operator import itemgetter
 
 
 class Predictor(object):
@@ -46,14 +47,44 @@ class Predictor(object):
         self.model = LinearRegression(fit_intercept=True, normalize=True)
         self.model.fit(self.var, self.aim)
 
+    def _return_nearest_subrub(self,suburb):
+        result =[]
+        this_suburb=self.suburb_meta[suburb]
+        dis_to_this_suburb=dict()
+        for key in self.suburb_meta.keys():
+            if key == this_suburb:
+                continue
+            record=self.suburb_meta[key]
+            if this_suburb["la"]*record["la"]>=0:
+                # they are at the same hemisphere
+                la_diff = this_suburb["la"] - record["la"]
+            else :
+                # they are not at the same hemisphere
+                la_diff = abs(this_suburb["la"]) + abs(record["la"])
+
+            if this_suburb["ln"]*record["ln"]>=0:
+                # they are at the same hemisphere
+                ln_diff = this_suburb["ln"] - record["ln"]
+            else :
+                # they are not at the same hemisphere
+                ln_diff = abs(this_suburb["ln"]) + abs(record["ln"])
+
+            dis_to_this_suburb[key]=la_diff**2+ln_diff**2
+        result.append(suburb)
+        for key, value in sorted(dis_to_this_suburb.items(), key=itemgetter(1), reverse=True):
+            result.append(key)
+        return result
+
+
     def computePrice(self,room, bath, carpark, suburb):
 
         result=[]
-        for key in self.suburb_meta.keys():
+        suburbList = self._return_nearest_subrub(suburb)
+        for key in suburbList[:4]:
             price=2 ** self.model.predict([[room, carpark, 7, bath,
                                             self.suburb_meta[key]["dis"],
                                             self.suburb_meta[key]["la"],
                                             self.suburb_meta[key]["ln"]]])[0][0]
-            result.append({"room":room, "bath": bath, "suburb": key, "price": price})
+            result.append({"room":room, "bath": bath, "carpark": carpark, "suburb": key, "price": price})
 
         return result

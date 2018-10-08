@@ -13,12 +13,13 @@ api = Api(app)
 CORS(app)
 
 # set up mongodb
-#MONGODB_URI = "mongodb://sean:comp4920@ds121603.mlab.com:21603/9321_asg3"
-MONGODB_URI = "mongodb://COMP9321:comp9321password@ds117422.mlab.com:17422/comp9321"
+MONGODB_URI = "mongodb://sean:comp4920@ds121603.mlab.com:21603/9321_asg3"
+#MONGODB_URI = "mongodb://COMP9321:comp9321password@ds117422.mlab.com:17422/comp9321"
 client = MongoClient(MONGODB_URI, connectTimeoutMS=30000)
-#db = client.get_database("9321_asg3")
-db = client.get_database("comp9321")
+db = client.get_database("9321_asg3")
+#db = client.get_database("comp9321")
 rr = RecordReader(db)
+#rr.reset_mongodb("Melbourne_housing_FULL.csv")
 #set up global predictor
 predictor = Predictor(rr.to_dataframe("melbourne_housing"))
 
