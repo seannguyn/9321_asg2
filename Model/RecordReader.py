@@ -13,9 +13,9 @@ class RecordReader:
         df = pd.read_csv(path_name)
         df = self._clean_df(df)
         records=df.to_dict(orient="records")
-        print(records)
+        #print(records)
         self.db["records"].insert_one(self._construct_document("melbourne_housing",records))
-        print(self.db["records"])
+        #print(self.db["records"])
 
 
     def _clean_df(self,df):
@@ -44,4 +44,5 @@ class RecordReader:
         records=self.get_records_by_title(title)
         if (records is not None):
             records=records["entry"]
+        print(pd.DataFrame(records))
         return pd.DataFrame(records)

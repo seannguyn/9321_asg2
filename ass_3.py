@@ -29,6 +29,7 @@ db = client.get_database("9321_asg3")
 # Instantiate class
 rr = RecordReader(db)
 # rr.reset_mongodb("Melbourne_housing_FULL.csv")
+
 predictor = Predictor(rr.to_dataframe("melbourne_housing"))
 processor = DataCleanser()
 
