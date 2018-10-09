@@ -10,9 +10,19 @@ from Model.RecordReader import RecordReader
 from Model.DataCleanser import DataCleanser
 from Model.Plotter import Plotter
 
-app = Flask(__name__)
-api = Api(app)
+app = Flask(__name__, static_url_path='', static_folder='PPP/build/')
 CORS(app)
+
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return app.send_static_file('index.html')
+
+
+api = Api(app, doc='/swagger/')
 
 # set up mongodb
 # SEAN mLab
@@ -34,6 +44,7 @@ predictor = Predictor(rr.to_dataframe("melbourne_housing"))
 processor = DataCleanser()
 
 plotter = Plotter()
+
 
 
 """
@@ -218,4 +229,4 @@ class maxPrice(Resource):
         }, 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0', port=8007, debug=True)

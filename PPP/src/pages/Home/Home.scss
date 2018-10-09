@@ -17,11 +17,24 @@
         margin-top: 10px;
     }
 
-    .app-options {
-        display: flex;
-        justify-content: center;
+    .predict-filter-container {
+        display: table;
+        margin: auto;
+        .predict-filters {
+            display: flex;
+            .basic-filter {
+                margin: 20px;
+                .basic-filter-title {
+                    text-align: center;
+                    font-size: 13pt;
+                    font-family: 'Comic Sans MS';
+                    margin-top: 20px;
+                }
+            }
+        }
         Button {
-            margin: 30px;
+            float: right;
+            margin-top: 50px;
         }
     }
 }
