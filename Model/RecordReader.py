@@ -45,4 +45,5 @@ class RecordReader:
         if (records is not None):
             records=records["entry"]
         # print(pd.DataFrame(records))
+        print("Dataframe loads correctly;")
         return pd.DataFrame(records)
