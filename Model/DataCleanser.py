@@ -143,12 +143,11 @@ class DataCleanser(object):
 
         suburb = db['suburb']
         if (suburb.find_one({"title":"Victoria"}) == None):
-            print("process data please")
 
             records = db['records']
             melbourne_house = records.find_one({"title": "melbourne_housing"})
             count = 1;
-            suburbList = []
+            suburbObject = {}
             existedSuburb = []
 
             for entry in melbourne_house['entry']:
@@ -156,23 +155,21 @@ class DataCleanser(object):
                 if (entry['Postcode'] in existedSuburb):
                     continue
 
-                obj = {
-                    str(count): {
-                        "suburb"    : entry['Suburb'],
-                        "postcode"  : entry['Postcode']
-                    }
-                }
+
                 existedSuburb.append(entry['Postcode'])
-                suburbList.append(obj)
+                suburbObject[str(count)] = {
+                    "suburb"    : entry['Suburb'],
+                    "postcode"  : entry['Postcode']
+                }
                 count += 1
 
             suburbRecord = {
                 "title": "Victoria",
-                "entry": suburbList
+                "entry": suburbObject
             }
 
             suburb.insert_one(suburbRecord)
-            return suburbList
+            return suburbObject
 
         else :
             return suburb.find_one({"title":"Victoria"})['entry']
