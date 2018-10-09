@@ -1,10 +1,5 @@
 .DS_STORE
 .vscode
 .idea
-.idea/*
 venv
-venv/*
-MachineLearning/__pycache__
-MachineLearning/__pycache__/*
-Model/__pycache__/
-Model/__pycache__/*
+__pycache__

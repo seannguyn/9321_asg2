@@ -76,15 +76,32 @@ class Predictor(object):
         return result
 
 
-    def computePrice(self,room, bath, carpark, suburb):
+#     def computePrice(self,room, bath, carpark, houseType, suburb):
+
+#         result=[]
+#         suburbList = self._return_nearest_subrub(suburb)
+#         for key in suburbList[:4]:
+#             price=2 ** self.model.predict([[room, carpark, 7, bath,
+#                                             self.suburb_meta[key]["dis"],
+#                                             self.suburb_meta[key]["la"],
+#                                             self.suburb_meta[key]["ln"]]])[0][0]
+#             result.append({"room":room, "bath": bath, "carpark": carpark, "suburb": key, "price": price})
+
+#         return result
+
+def computePrice(self,room, bath, carpark, houseType, suburb):
 
         result=[]
-        suburbList = self._return_nearest_subrub(suburb)
-        for key in suburbList[:4]:
+        for key in self.suburb_meta.keys():
             price=2 ** self.model.predict([[room, carpark, 7, bath,
                                             self.suburb_meta[key]["dis"],
                                             self.suburb_meta[key]["la"],
                                             self.suburb_meta[key]["ln"]]])[0][0]
-            result.append({"room":room, "bath": bath, "carpark": carpark, "suburb": key, "price": price})
+            if (suburb.lower() == key.lower()):
+                neededSuburb = {"room":room, "bath": bath, "suburb": key, "price": price}
+            else:
+                result.append({"room":room, "bath": bath, "suburb": key, "price": price})
+
+        result.insert(0, neededSuburb)
 
         return result

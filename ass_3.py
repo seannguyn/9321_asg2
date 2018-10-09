@@ -7,21 +7,33 @@ from MachineLearning.Predictor import Predictor
 import requests
 import json
 from Model.RecordReader import RecordReader
+from Model.DataCleanser import DataCleanser
+from Model.Plotter import Plotter
 
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
 # set up mongodb
+# SEAN mLab
 MONGODB_URI = "mongodb://sean:comp4920@ds121603.mlab.com:21603/9321_asg3"
-#MONGODB_URI = "mongodb://COMP9321:comp9321password@ds117422.mlab.com:17422/comp9321"
 client = MongoClient(MONGODB_URI, connectTimeoutMS=30000)
 db = client.get_database("9321_asg3")
-#db = client.get_database("comp9321")
+
+# John mLab
+# MONGODB_URI = "mongodb://COMP9321:comp9321password@ds117422.mlab.com:17422/comp9321"
+# client = MongoClient(MONGODB_URI, connectTimeoutMS=30000)
+# db = client.get_database("comp9321")
+
+
+# Instantiate class
 rr = RecordReader(db)
-#rr.reset_mongodb("Melbourne_housing_FULL.csv")
-#set up global predictor
+# rr.reset_mongodb("Melbourne_housing_FULL.csv")
+
 predictor = Predictor(rr.to_dataframe("melbourne_housing"))
+processor = DataCleanser()
+
+plotter = Plotter()
 
 
 """
@@ -36,6 +48,7 @@ queryParser = api.parser()
 queryParser.add_argument('bedroom')
 queryParser.add_argument('bathroom')
 queryParser.add_argument('carpark')
+queryParser.add_argument('type')
 queryParser.add_argument('suburb')
 
 @api.route('/predictPrice')
@@ -48,13 +61,15 @@ class PredictPrice(Resource):
         bedroom     = args.get('bedroom')
         bathroom    = args.get('bathroom')
         carpark     = args.get('carpark')
+        houseType   = args.get('type')
         suburb      = args.get('suburb')
 
         # predict price
-        prediction = predictor.computePrice(int(bedroom),int(bathroom),int(carpark),suburb)
+        prediction = predictor.computePrice(int(bedroom),int(bathroom),int(carpark),houseType,suburb)
+        processedPrediction = processor.processPrediction(prediction)
 
         # get geocode
-        resultLocation = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address="+suburb+"&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
+        resultLocation = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address="+suburb+",Victoria"+"&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
         dataLocation = json.loads(resultLocation.content)
 
         lat = dataLocation['results'][0]['geometry']['location']['lat']
@@ -63,79 +78,144 @@ class PredictPrice(Resource):
 
         # get near by restarant
         resultRestaurant = requests.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+location+"&radius=2000&type=restaurant&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
-        dataRestarant = json.loads(resultRestaurant.content)
+        dataRestaurant = json.loads(resultRestaurant.content)
+        processedRestaurant = processor.processRestaurant(dataRestaurant['results'])
 
         # get near by hospital
         resultHospital = requests.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+location+"&radius=2000&type=hospital&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
         dataHospital = json.loads(resultHospital.content)
+        processedHospital = processor.processHospital(dataHospital['results'])
 
         # get near by school
         resultSchool = requests.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+location+"&radius=2000&type=school&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
         dataSchool = json.loads(resultSchool.content)
+        processedSchool = processor.processSchool(dataSchool['results'])
 
-        # get near by school
+        # get near by supermarket
         resultSupermarket= requests.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+location+"&radius=2000&type=supermarket&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
         dataSupermarket = json.loads(resultSupermarket.content)
+        processedSupermarket = processor.processSupermarket(dataSupermarket['results'])
+
+        saveTrend(int(bedroom),int(bathroom),int(carpark),suburb)
 
         main_data = {
-            "prediction"    : prediction,
-            "restaurant"    : dataRestarant,
-            "hospital"      : dataHospital,
-            "school"        : dataSchool,
-            "supermarket"   : dataSupermarket,
+            "code"          : 200,
+            "msg"           : "Predicted suburb successfully",
+            "data"          : {
+                "prediction"    : processedPrediction,
+                "restaurant"    : processedRestaurant,
+                "hospital"      : processedHospital,
+                "school"        : processedSchool,
+                "supermarket"   : processedSupermarket,
+            }
         }
 
         return main_data, 200
 
-# Analysing user request, figure out the trendy suburb
-trendAnalyser = api.model(
-'trendAnalyser',{
-    'suburb'    :   fields.String,
-    'bedroom'   :   fields.String,
-    'bathroom'  :   fields.String,
-})
-
 @api.route('/trendRecord')
 class trendRecord(Resource):
     def get(self):
+        trendAnalyser = db['trendAnalyser']
 
-        return {"hello":"world"},200
+        if (trendAnalyser.find_one({"total": "total"}) != None):
 
-    @api.expect(trendAnalyser)
-    def post(self):
+            totalCount = trendAnalyser.find_one({"total": "total"})
 
-        # parse body
-        data = request.json
+            cursor = trendAnalyser.find({})
+            label   = []
+            size    = []
 
-        trend = db['trendAnalyser']
+            for document in cursor:
+                if (document.get('suburb',"") != ""):
+                    label.append(document['suburb'])
+                    size.append(100*document['requestCount']/totalCount['totalCount'])
 
-        if ( trend.find_one({"suburb": data['suburb']}) == None):
+            plotter.pieChart(label,size)
 
-            record = {}
-            record['suburb'] = data['suburb']
-            record['request'] = [{"bedroom": data['bedroom'], "bathroom": data['bathroom']}]
-            record['requestCount'] = 1
-
-            # insert
-            trend.insert_one(record)
-
-            return {
-                "created": "true"
-            }, 201
+            return {"message":"Done"},200
 
         else:
+            return {"message":"no data"},401
 
-            record = trend.find_one({"suburb": data['suburb']})
-            record['requestCount'] = int(record['requestCount']) + 1
-            record['request'].append({"bedroom": data['bedroom'], "bathroom": data['bathroom']})
-            trend.update({"suburb": data['suburb']}, record)
+def saveTrend(room, bath, carpark, suburb):
+    trend = db['trendAnalyser']
 
-            return {
-                "updated": "true"
-            }, 200
+    if (trend.find_one({"total": "total"}) == None):
+        total = {}
+        total['total'] = "total"
+        total['totalCount'] = 1
 
+        # insert
+        trend.insert_one(total)
+    else:
+        total = trend.find_one({"total": "total"})
+        total['totalCount'] = int(total['totalCount']) + 1
+
+        trend.update({"total": "total"}, total)
+
+    suburb = suburb.lower()
+
+    if ( trend.find_one({"suburb": suburb}) == None):
+
+        record = {}
+        record['suburb'] = suburb
+        record['request'] = [{"room": room, "bath": bath, "carpark": carpark}]
+        record['requestCount'] = 1
+
+        # insert
+        trend.insert_one(record)
+
+        return "created"
+
+    else:
+
+        record = trend.find_one({"suburb": suburb})
+        record['requestCount'] = int(record['requestCount']) + 1
+        record['request'].append({"room": room, "bath": bath, "carpark":carpark})
+        trend.replace_one({"suburb": suburb}, record)
+
+        return "updated"
+
+@api.route('/basicfilters')
+class basicFilters(Resource):
+    def get(self):
+        return {
+             "code": 200,
+            "msg": "basic filters",
+            "data": {
+                "max_bedroom": 31,
+                "max_bathroom": 5,
+                "max_carspace": 3,
+                "types" : [
+                    "house",
+                    "unit"
+                ]
+            }
+        }, 200
+
+@api.route('/suburbs')
+class allSuburb(Resource):
+    def get(self):
+
+        result = processor.processSuburb(db)
+
+        return {
+            "code": 200,
+            "msg": "suburbs and postcodes",
+            "data": result
+        }, 200
+
+@api.route('/maxprice')
+class maxPrice(Resource):
+    def get(self):
+
+        return {
+            "code": 200,
+            "msg": "max price",
+            "data": {
+                "max_price": 999999
+            }
+        }, 200
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
