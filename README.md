@@ -165,17 +165,17 @@ These errors depend on our model can or cannot handle the input value not in our
          
          
          "hospital": [
-            ... ("same as restaurant object, just no rating")
+            ... "same as restaurant object, just no rating field"
          ],
          
          
          "school": [
-            ... ("exactly same as restaurant object")
+            ... "exactly same as restaurant object"
          ],
          
          
          "supermarket": [
-            ... ("exactly same as restaurant object")
+            ... "exactly same as restaurant object"
          ]
          
     }
