@@ -27,6 +27,7 @@
     "build": "ice build",
     "lint": "eslint . --ext '.js,.jsx' --fix"
   },
+  "proxy": "http://localhost:5000",
   "publishConfig": {
     "registry": "http://registry.npmjs.com",
     "access": "public"

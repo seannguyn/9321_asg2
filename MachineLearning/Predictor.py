@@ -46,7 +46,7 @@ class Predictor(object):
         self.model = LinearRegression(fit_intercept=True, normalize=True)
         self.model.fit(self.var, self.aim)
 
-    def computePrice(self,room, bath, carpark, suburb):
+    def computePrice(self,room, bath, carpark, houseType, suburb):
 
         result=[]
         for key in self.suburb_meta.keys():

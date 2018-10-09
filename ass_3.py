@@ -8,6 +8,7 @@ import requests
 import json
 from Model.RecordReader import RecordReader
 from Model.DataCleanser import DataCleanser
+from Model.Plotter import Plotter
 
 app = Flask(__name__)
 api = Api(app)
@@ -25,12 +26,13 @@ db = client.get_database("9321_asg3")
 # db = client.get_database("comp9321")
 
 
+# Instantiate class
 rr = RecordReader(db)
 # rr.reset_mongodb("Melbourne_housing_FULL.csv")
-#set up global predictor
 predictor = Predictor(rr.to_dataframe("melbourne_housing"))
-
 processor = DataCleanser()
+
+plotter = Plotter()
 
 
 """
@@ -45,6 +47,7 @@ queryParser = api.parser()
 queryParser.add_argument('bedroom')
 queryParser.add_argument('bathroom')
 queryParser.add_argument('carpark')
+queryParser.add_argument('type')
 queryParser.add_argument('suburb')
 
 @api.route('/predictPrice')
@@ -57,10 +60,11 @@ class PredictPrice(Resource):
         bedroom     = args.get('bedroom')
         bathroom    = args.get('bathroom')
         carpark     = args.get('carpark')
+        houseType   = args.get('type')
         suburb      = args.get('suburb')
 
         # predict price
-        prediction = predictor.computePrice(int(bedroom),int(bathroom),int(carpark),suburb)
+        prediction = predictor.computePrice(int(bedroom),int(bathroom),int(carpark),houseType,suburb)
         processedPrediction = processor.processPrediction(prediction)
 
         # get geocode
@@ -94,65 +98,59 @@ class PredictPrice(Resource):
         saveTrend(int(bedroom),int(bathroom),int(carpark),suburb)
 
         main_data = {
-            "prediction"    : processedPrediction,
-            "restaurant"    : processedRestaurant,
-            "hospital"      : processedHospital,
-            "school"        : processedSchool,
-            "supermarket"   : processedSupermarket,
+            "code"          : 200,
+            "msg"           : "Predicted suburb successfully",
+            "data"          : {
+                "prediction"    : processedPrediction,
+                "restaurant"    : processedRestaurant,
+                "hospital"      : processedHospital,
+                "school"        : processedSchool,
+                "supermarket"   : processedSupermarket,
+            }
         }
 
         return main_data, 200
 
-# Analysing user request, figure out the trendy suburb
-trendAnalyser = api.model(
-'trendAnalyser',{
-    'suburb'    :   fields.String,
-    'bedroom'   :   fields.String,
-    'bathroom'  :   fields.String,
-})
-
 @api.route('/trendRecord')
 class trendRecord(Resource):
     def get(self):
+        trendAnalyser = db['trendAnalyser']
 
-        return {"hello":"world"},200
+        if (trendAnalyser.find_one({"total": "total"}) != None):
 
-    @api.expect(trendAnalyser)
-    def post(self):
+            totalCount = trendAnalyser.find_one({"total": "total"})
 
-        # parse body
-        data = request.json
+            cursor = trendAnalyser.find({})
+            label   = []
+            size    = []
 
-        trend = db['trendAnalyser']
+            for document in cursor:
+                if (document.get('suburb',"") != ""):
+                    label.append(document['suburb'])
+                    size.append(100*document['requestCount']/totalCount['totalCount'])
 
-        if ( trend.find_one({"suburb": data['suburb']}) == None):
+            plotter.pieChart(label,size)
 
-            record = {}
-            record['suburb'] = data['suburb']
-            record['request'] = [{"bedroom": data['bedroom'], "bathroom": data['bathroom']}]
-            record['requestCount'] = 1
-
-            # insert
-            trend.insert_one(record)
-
-            return {
-                "created": "true"
-            }, 201
+            return {"message":"Done"},200
 
         else:
-
-            record = trend.find_one({"suburb": data['suburb']})
-            record['requestCount'] = int(record['requestCount']) + 1
-            record['request'].append({"bedroom": data['bedroom'], "bathroom": data['bathroom']})
-            trend.update({"suburb": data['suburb']}, record)
-
-            return {
-                "updated": "true"
-            }, 200
-
+            return {"message":"no data"},401
 
 def saveTrend(room, bath, carpark, suburb):
     trend = db['trendAnalyser']
+
+    if (trend.find_one({"total": "total"}) == None):
+        total = {}
+        total['total'] = "total"
+        total['totalCount'] = 1
+
+        # insert
+        trend.insert_one(total)
+    else:
+        total = trend.find_one({"total": "total"})
+        total['totalCount'] = int(total['totalCount']) + 1
+
+        trend.update({"total": "total"}, total)
 
     suburb = suburb.lower()
 
@@ -177,6 +175,46 @@ def saveTrend(room, bath, carpark, suburb):
 
         return "updated"
 
+@api.route('/basicfilters')
+class basicFilters(Resource):
+    def get(self):
+        return {
+             "code": 200,
+            "msg": "basic filters",
+            "data": {
+                "max_bedroom": 31,
+                "max_bathroom": 5,
+                "max_carspace": 3,
+                "types" : [
+                    "house",
+                    "unit"
+                ]
+            }
+        }, 200
+
+@api.route('/suburbs')
+class allSuburb(Resource):
+    def get(self):
+
+        result = processor.processSuburb(db)
+
+        return {
+            "code": 200,
+            "msg": "suburbs and postcodes",
+            "data": result
+        }, 200
+
+@api.route('/maxprice')
+class maxPrice(Resource):
+    def get(self):
+
+        return {
+            "code": 200,
+            "msg": "max price",
+            "data": {
+                "max_price": 999999
+            }
+        }, 200
 
 if __name__ == '__main__':
     app.run(debug=True)

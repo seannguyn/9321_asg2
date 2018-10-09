@@ -1,5 +1,6 @@
 import requests
 import json
+from pymongo import MongoClient
 
 API_key = "&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY"
 url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="
@@ -15,16 +16,19 @@ class DataCleanser(object):
 
         counter = 0
         anchor = prediction[0]
-        result = []
+        recommendation = []
 
         for p in prediction:
+
+            if p == anchor:
+                continue
             if (counter == 5):
                 break
             if (p['price'] <= anchor['price'] + 20000 and p['price'] >= anchor['price'] - 20000):
-                result.append(p)
+                recommendation.append(p)
                 counter += 1
 
-        return result
+        return {'main':anchor,'recommendation':recommendation}
 
     def processRestaurant(self, dataList):
         dataList_1 = []
@@ -134,3 +138,41 @@ class DataCleanser(object):
                 break
 
         return result
+
+    def processSuburb(self, db):
+
+        suburb = db['suburb']
+        if (suburb.find_one({"title":"Victoria"}) == None):
+            print("process data please")
+
+            records = db['records']
+            melbourne_house = records.find_one({"title": "melbourne_housing"})
+            count = 1;
+            suburbList = []
+            existedSuburb = []
+
+            for entry in melbourne_house['entry']:
+
+                if (entry['Postcode'] in existedSuburb):
+                    continue
+
+                obj = {
+                    str(count): {
+                        "suburb"    : entry['Suburb'],
+                        "postcode"  : entry['Postcode']
+                    }
+                }
+                existedSuburb.append(entry['Postcode'])
+                suburbList.append(obj)
+                count += 1
+
+            suburbRecord = {
+                "title": "Victoria",
+                "entry": suburbList
+            }
+
+            suburb.insert_one(suburbRecord)
+            return suburbList
+
+        else :
+            return suburb.find_one({"title":"Victoria"})['entry']
