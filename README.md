@@ -7,7 +7,7 @@ We accept:
 - `number of bathroom`, `number of bedroom`, `car spaces`, `type` and **`suburb`**
 
 as input to provide
-- 
+- `price` prediction and the nearby `restaurant`, `hospital`, `school`, `supermarket`
 
 ## *Advanced funtions (optinal)*
 - Heat map of the number of transaction happening in all suburbs
