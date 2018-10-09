@@ -111,22 +111,19 @@ This API returns maximum value of `price`.
 ```
 ---
 ```http
-GET /predict?num_bedroom={}&num_bathroom={}&num_carspace={}&type={,}&suburb={}&price={}
+GET /predictPrice?bedroom={}&bathroom={}&carpark={}&type={}&suburb={}
 ```
 The prediction API
 ##### parameters
-- **num_bedroom** the number of bedroom user selects
-- **num_bathroom** the number of bathroom
-- **num_carspace** the number of car space
+- **bedroom** the number of bedroom user selects
+- **bathroom** the number of bathroom
+- **carpark** the number of car space
 - **type** the type of houses. It can be a list, divided by `,`
 - ***suburb** optinal* suburb id. It is mutual exclusive with `price`
-- ***price** optinal* the price user sets
 
 ##### Possible error code and msg:
 These errors depend on our model can or cannot handle the input value not in our database
 - **400** basic filters param missing
-- **400** `suburb` or `price` missing
-- **400** have both `suburb` and `price`
 
 ##### Success response:
 ```json
@@ -134,22 +131,56 @@ These errors depend on our model can or cannot handle the input value not in our
     "code": 200,
     "msg": "Predicted suburb successfully",
     "data": {
-        "suburb": {
-            "id": 123,
-            "suburb": "Airport West",
-            "postcode": "3042"
-        }
+        "prediction": {
+            "main": {
+              "room": 2,
+              "bath": 2,
+              "suburb": "Balwyn",
+              "price": 1062666.489160954
+            },
+            "recommendation": [
+                {
+                    "room": 2,
+                    "bath": 2,
+                    "suburb": "Alphington",
+                    "price": 1078787.2748451298
+                  },
+                  ....
+            ]
+         },
+         
+         "restaurant": [
+            {
+              "name": "Narai Thai Restaurant Balwyn",
+              "location": {
+                "lat": -37.8131972,
+                "lng": 145.0834349
+              },
+              "photo": "https://....",
+              "rating": 4.5,
+              "vicinity": "296 Whitehorse Road, Balwyn"
+            },
+            .....
+         ],
+         
+         
+         "hospital": [
+            ... (same as restaurant object, just no rating)
+         ],
+         
+         
+         "school": [
+            ... (exactly same as restaurant object)
+         ],
+         
+         
+         "supermarket": [
+            ... (exactly same as restaurant object)
+         ]
+         
     }
 }
-or
-{
-    "code": 200,
-    "msg": "Predicted price successfully",
-    "data": {
-        "price": 124555
-    }
-}
-```
+
 
 ## [Workflow](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFI7XG4gICAgMDAtLT58dHJhaW5pbmd8MDIoKGstTk4gbW9kZWwpKVxuICAgIDEwe2Jhc2ljIGZpbHRlcnN9XG4gICAgMTFbbnVtYmVyIG9mIGJhdGhyb29tXS0tPjEwXG4gICAgMTJbbnVtYmVyIG9mIGJlZHJvb21dLS0-MTBcbiAgICAxM1tudW1iZXIgb2YgY2FyIHNwYWNlc10tLT4xMFxuICAgIDE0W3N1YnVyYl0tLT4xNVtpbnB1dF1cbiAgICAxMC0tPjE1XG4gICAgMTAtLT4xN1tpbnB1dF1cbiAgICAxNltwcmljZV0tLT4xN1xuICAgIDE1LS0-MDFcbiAgICAwMFtNZWxib3VybmVfaG91c2luZ19GVUxMLmNzdl0tLT58dHJhaW5pbmd8MDEoKGxpbmVhciByZWdyZXNzaW9uIG1vZGVsKSlcbiAgICAwMS0tPnxwcmVkaWN0fDIwW3ByaWNlXVxuICAgIDE3LS0-MDJcbiAgICAwMi0tPnxwcmVkaWN0fDIxW3N1YnVyYl0iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGVmYXVsdCJ9fQ)
 👆 click it
