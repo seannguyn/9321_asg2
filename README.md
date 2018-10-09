@@ -111,7 +111,7 @@ This API returns maximum value of `price`.
 ```
 ---
 ```http
-GET /predictPrice?bedroom={}&bathroom={}&carpark={}&type={}&suburb={}
+GET /predictPrice?bedroom={int}&bathroom={int}&carpark={int}&type={string}&suburb={string}
 ```
 The prediction API
 ##### parameters
