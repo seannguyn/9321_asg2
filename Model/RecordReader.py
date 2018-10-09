@@ -44,5 +44,5 @@ class RecordReader:
         records=self.get_records_by_title(title)
         if (records is not None):
             records=records["entry"]
-        print(pd.DataFrame(records))
+        # print(pd.DataFrame(records))
         return pd.DataFrame(records)

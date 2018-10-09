@@ -1,6 +1,6 @@
-
 import React, { Component } from 'react';
 import './BasicFilter.scss';
+import * as Common from '../../Common';
 import { Snackbar, CircularProgress, Select, MenuItem } from '@material-ui/core';
 import axios from 'axios';
 
@@ -21,7 +21,7 @@ export default class BasicFilter extends Component {
   }
 
   componentDidMount() {
-    axios.get('/basicfilters')
+    axios.get(Common.BACKEND_URL + '/basicfilters')
       .then((response) => {
         this.setState(
           {
@@ -41,15 +41,15 @@ export default class BasicFilter extends Component {
         }
         this.setState({
           ...this.state,
-          filter: {
-            "max_bedroom": 31,
-            "max_bathroom": 5,
-            "max_carspace": 3,
-            "types": [
-              "house",
-              "unit",
-            ]
-          },
+          // filter: {
+          //   "max_bedroom": 31,
+          //   "max_bathroom": 5,
+          //   "max_carspace": 3,
+          //   "types": [
+          //     "house",
+          //     "unit",
+          //   ]
+          // },
           isSnackBarOpen: true,
           snackBarMsg: errorMsg,
         });

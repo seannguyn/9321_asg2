@@ -3,29 +3,45 @@ Basically, we want to provide a data service for home buyers to predict the **se
 
 We will use the [`Melbourne_housing_FULL.csv`](https://www.kaggle.com/anthonypino/melbourne-housing-market#Melbourne_housing_FULL.csv) as our data source to train a linear regression model for price prediction and a k-NN model for suburbs that a buyer can afford with the requirement of the property given.
 
-We accept 2 kinds of input to provide different prediction:
+We accept:
+- `number of bathroom`, `number of bedroom`, `car spaces`, `type` and **`suburb`**
 
-1. `number of bathroom`, `number of bedroom`, `car spaces`, `type` and **`suburb`**
-
-    The prediction result will be the `price` of the given conditions.
-
-2. `number of bathroom`, `number of bedroom`, `car spaces`, `type` and **`price`**
-
-    The prediction result will be the `suburb` which could fit the given conditions.
+as input to provide
+- 
 
 ## *Advanced funtions (optinal)*
 - Heat map of the number of transaction happening in all suburbs
 
+## [Workflow](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFI7XG4gICAgMDAtLT58dHJhaW5pbmd8MDIoKGstTk4gbW9kZWwpKVxuICAgIDEwe2Jhc2ljIGZpbHRlcnN9XG4gICAgMTFbbnVtYmVyIG9mIGJhdGhyb29tXS0tPjEwXG4gICAgMTJbbnVtYmVyIG9mIGJlZHJvb21dLS0-MTBcbiAgICAxM1tudW1iZXIgb2YgY2FyIHNwYWNlc10tLT4xMFxuICAgIDE0W3N1YnVyYl0tLT4xNVtpbnB1dF1cbiAgICAxMC0tPjE1XG4gICAgMTAtLT4xN1tpbnB1dF1cbiAgICAxNltwcmljZV0tLT4xN1xuICAgIDE1LS0-MDFcbiAgICAwMFtNZWxib3VybmVfaG91c2luZ19GVUxMLmNzdl0tLT58dHJhaW5pbmd8MDEoKGxpbmVhciByZWdyZXNzaW9uIG1vZGVsKSlcbiAgICAwMS0tPnxwcmVkaWN0fDIwW3ByaWNlXVxuICAgIDE3LS0-MDJcbiAgICAwMi0tPnxwcmVkaWN0fDIxW3N1YnVyYl0iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGVmYXVsdCJ9fQ)
+👆 click it
+```mermaid
+graph LR;
+    00-->|training|02((k-NN model))
+    10{basic filters}
+    11[number of bathroom]-->10
+    12[number of bedroom]-->10
+    13[number of car spaces]-->10
+    14[suburb]-->15[input]
+    10-->15
+    10-->17[input]
+    16[price]-->17
+    15-->01
+    00[Melbourne_housing_FULL.csv]-->|training|01((linear regression model))
+    01-->|predict|20[price]
+    17-->02
+    02-->|predict|21[suburb]
+```
+
 ## API
 We use Flask to build RESTful API.
-### Authentication
+#### Authentication
 We need authentication in every API. Specifically, we have a pair in backend:
 ```
     "api_key": "your api key",
     "api_secret": "your api secret",
 ```
 for every API request, the `api_key` field should be added into `Header`. The backend will check the match.
-### Response Format
+#### Response Format
 All in all, the uniform style of our RESTful API response is like:
 ```json
 {
@@ -47,7 +63,7 @@ and
 - **msg** the msg could be displayed to user
 - **data** the response payload, **ONLY** appears in success response
 
-### APIs
+#### APIs
 ```http
 GET /basicfilters
 ```
@@ -95,22 +111,6 @@ This API returns all the suburbs with their postcodes. The key is the id of this
 ```
 ---
 ```http
-GET /maxprice
-```
-This API returns maximum value of `price`.
-
-##### Success response:
-```json
-{
-    "code": 200,
-    "msg": "max price",
-    "data": {
-        "max_price": 999999
-    }
-}
-```
----
-```http
 GET /predictPrice?bedroom={int}&bathroom={int}&carpark={int}&type={string}&suburb={string}
 ```
 The prediction API
@@ -119,7 +119,7 @@ The prediction API
 - **bathroom** the number of bathroom
 - **carpark** the number of car space
 - **type** the type of houses. It can be a list, divided by `,`
-- ***suburb** optinal* suburb id. It is mutual exclusive with `price`
+- **suburb** *name* of the suburb for the moment.
 
 ##### Possible error code and msg:
 These errors depend on our model can or cannot handle the input value not in our database
@@ -148,7 +148,6 @@ These errors depend on our model can or cannot handle the input value not in our
                   ....
             ]
          },
-         
          "restaurant": [
             {
               "name": "Narai Thai Restaurant Balwyn",
@@ -162,42 +161,15 @@ These errors depend on our model can or cannot handle the input value not in our
             },
             .....
          ],
-         
-         
          "hospital": [
             ... "same as restaurant object, just no rating field"
          ],
-         
-         
          "school": [
             ... "exactly same as restaurant object"
          ],
-         
-         
          "supermarket": [
             ... "exactly same as restaurant object"
          ]
-         
     }
 }
-
-
-## [Workflow](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFI7XG4gICAgMDAtLT58dHJhaW5pbmd8MDIoKGstTk4gbW9kZWwpKVxuICAgIDEwe2Jhc2ljIGZpbHRlcnN9XG4gICAgMTFbbnVtYmVyIG9mIGJhdGhyb29tXS0tPjEwXG4gICAgMTJbbnVtYmVyIG9mIGJlZHJvb21dLS0-MTBcbiAgICAxM1tudW1iZXIgb2YgY2FyIHNwYWNlc10tLT4xMFxuICAgIDE0W3N1YnVyYl0tLT4xNVtpbnB1dF1cbiAgICAxMC0tPjE1XG4gICAgMTAtLT4xN1tpbnB1dF1cbiAgICAxNltwcmljZV0tLT4xN1xuICAgIDE1LS0-MDFcbiAgICAwMFtNZWxib3VybmVfaG91c2luZ19GVUxMLmNzdl0tLT58dHJhaW5pbmd8MDEoKGxpbmVhciByZWdyZXNzaW9uIG1vZGVsKSlcbiAgICAwMS0tPnxwcmVkaWN0fDIwW3ByaWNlXVxuICAgIDE3LS0-MDJcbiAgICAwMi0tPnxwcmVkaWN0fDIxW3N1YnVyYl0iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGVmYXVsdCJ9fQ)
-👆 click it
-```mermaid
-graph LR;
-    00-->|training|02((k-NN model))
-    10{basic filters}
-    11[number of bathroom]-->10
-    12[number of bedroom]-->10
-    13[number of car spaces]-->10
-    14[suburb]-->15[input]
-    10-->15
-    10-->17[input]
-    16[price]-->17
-    15-->01
-    00[Melbourne_housing_FULL.csv]-->|training|01((linear regression model))
-    01-->|predict|20[price]
-    17-->02
-    02-->|predict|21[suburb]
 ```
