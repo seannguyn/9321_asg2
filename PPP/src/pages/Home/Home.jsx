@@ -72,11 +72,6 @@ export default class Home extends Component {
             margin: 'auto',
           }}
         />
-        <div className='app-desc'>
-          Trying to find a property to purchase in Melbourne?<br />
-          Let us know what you're looking for and we'll provide predictions and suggestions.<br />
-          Here we go!
-        </div>
         <div className='predict-filter-container'>
           <Snackbar
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -90,6 +85,9 @@ export default class Home extends Component {
               });
             }}
           />
+          <div className='predict-filters-bg'>
+            <div className='predict-filters-bg-box' />
+          </div>
           <div className='predict-filters'>
             <BasicFilter
               onChange={(key, value) => this.setState({ [key]: value })}

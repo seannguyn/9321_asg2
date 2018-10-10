@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './Predict.scss';
 import * as Common from '../../Common';
 import Slogon from '../../components/Slogon';
-import { CircularProgress, Snackbar, } from '@material-ui/core';
+import { CircularProgress, Snackbar, GridList, GridListTile } from '@material-ui/core';
 import axios from 'axios';
 
 export default class Home extends Component {
@@ -15,7 +15,7 @@ export default class Home extends Component {
   }
 
   componentDidMount() {
-    axios.get(Common.BACKEND_URL + '/predictPffrice',
+    axios.get(Common.BACKEND_URL + '/predictPrice',
       { params: { ...this.data } }
     )
       .then((response) => {
@@ -36,6 +36,10 @@ export default class Home extends Component {
           snackBarMsg: errorMsg,
         });
       });
+  }
+
+  getDisplayPrice(price) {
+    return price.toFixed(1).replace(/\d(?=(\d{3})+\.)/g, '$&,');
   }
 
   render() {
@@ -61,13 +65,108 @@ export default class Home extends Component {
         {
           this.state.data ?
             <div>
-              <div className='predict-result'>
-                Our algorithm has calculated that the price will be
-                <div className='price'>
-                  $ {this.state.data.prediction.main.price}
-                </div>
-                for your <span className='filter'>{this.data.type}</span> with <span className='filter'>{this.data.bedroom}</span> bedroom, <span className='filter'>{this.data.bathroom}</span> bathroom, <span className='filter'>{this.data.carpark}</span> car space in the area <span className='filter'>{this.data.suburb}</span>
+              <div className='predict-title'>
+                Price Prediction
               </div>
+              <div>
+                <div className='predict-content'>
+                  <div className='predict-content-box'>
+                    <div className='predict-price'>
+                      ${this.getDisplayPrice(this.state.data.prediction.main.price)}
+                    </div>
+                    <div className='filter-info'>
+                      For a {this.data.bedroom} bed, {this.data.bathroom} bath, {this.data.carpark} car {this.data.type} in {this.data.suburb}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='section-margin' />
+              <div className='section-title'>
+                Mapview
+              </div>
+              <div className='mapview'>Well, i'm a Mapview</div>
+              <div className='section-title'>
+                Nearby Restaurants
+              </div>
+              <GridList
+                spacing={80}
+                cols={4}
+              >
+                {
+                  this.state.data.restaurant.map(item => (
+                    <div className='grid-item'>
+                      <img className='grid-img'
+                        src={item.photo} />
+                      <div>{item.name}</div>
+                      <div className='grid-addr'>
+                        {item.vicinity}
+                      </div>
+                      <div className='grid-rating'>
+                        {(() => {
+                          let rating = '';
+                          for (let i = 1; i < item.rating; i++) {
+                            rating += '★';
+                          }
+                          if (!Number.isInteger(item.rating)) {
+                            rating += '☆';
+                          }
+                          return rating;
+                        })()}
+                      </div>
+                    </div>
+                  ))
+                }
+              </GridList>
+              <div className='section-title'>
+                Nearby Supermarkets
+              </div>
+              <GridList
+                spacing={80}
+                cols={4}
+              >
+                {
+                  this.state.data.supermarket.map(item => (
+                    <div className='grid-item'>
+                      <img className='grid-img'
+                        src={item.photo} />
+                      <div>{item.name}</div>
+                      <div className='grid-addr'>
+                        {item.vicinity}
+                      </div>
+                      <div className='grid-rating'>
+                        {(() => {
+                          let rating = '';
+                          for (let i = 1; i < item.rating; i++) {
+                            rating += '★';
+                          }
+                          if (!Number.isInteger(item.rating)) {
+                            rating += '☆';
+                          }
+                          return rating;
+                        })()}
+                      </div>
+                    </div>
+                  ))
+                }
+              </GridList>
+              <div className='section-title'>
+                Other Suggested Areas
+              </div>
+              <GridList
+                spacing={20}
+                cols={this.state.data.prediction.recommendation.length + 1}
+              >
+                {
+                  this.state.data.prediction.recommendation.map(item => (
+                    <div>
+                      <div>{item.suburb}</div>
+                      <div className='grid-addr'>
+                        ${this.getDisplayPrice(item.price)}
+                      </div>
+                    </div>
+                  ))
+                }
+              </GridList>
             </div>
             :
             <CircularProgress
