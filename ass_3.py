@@ -78,7 +78,7 @@ class PredictPrice(Resource):
 
         # predict price
         prediction = predictor.computePrice(int(bedroom),int(bathroom),int(carpark),houseType,suburb)
-        processedPrediction = processor.processPrediction(prediction)
+        processedPrediction = processor.processPrediction(prediction, db)
 
         # get geocode
         resultLocation = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address="+suburb+",Victoria"+"&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
@@ -134,17 +134,25 @@ class trendRecord(Resource):
             totalCount = trendAnalyser.find_one({"total": "total"})
 
             cursor = trendAnalyser.find({})
-            label   = []
-            size    = []
+            data   = []
+            init = ["Suburb","Request"]
+            data.append(init)
 
             for document in cursor:
                 if (document.get('suburb',"") != ""):
-                    label.append(document['suburb'])
-                    size.append(100*document['requestCount']/totalCount['totalCount'])
+                    data.append([document['suburb'],document['requestCount']])
 
-            plotter.pieChart(label,size)
 
-            return {"message":"Done"},200
+            return {
+
+                "data":data,
+                "options": {
+                  "title": "Trend Analyser",
+                  "pieHole": 0.4,
+                  "is3D": "true"
+                },
+
+            },200
 
         else:
             return {"message":"no data"},401

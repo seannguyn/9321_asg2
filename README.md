@@ -136,14 +136,16 @@ These errors depend on our model can or cannot handle the input value not in our
               "room": 2,
               "bath": 2,
               "suburb": "Balwyn",
-              "price": 1062666.489160954
+              "price": 1062666,
+              "photo": "https://..."
             },
             "recommendation": [
                 {
                     "room": 2,
                     "bath": 2,
                     "suburb": "Alphington",
-                    "price": 1078787.2748451298
+                    "price": 1078787,
+                    "photo": "https://..."
                   },
                   ....
             ]
@@ -171,5 +173,39 @@ These errors depend on our model can or cannot handle the input value not in our
             ... "exactly same as restaurant object"
          ]
     }
+}
+```
+---
+```http
+GET /trendRecord
+```
+This API returns trend data for plotting
+
+##### Success response:
+```json
+{
+  "data": [
+    [
+      "Suburb",
+      "Request"
+    ],
+    [
+      "balwyn",
+      1
+    ],
+    [
+      "kew",
+      1
+    ],
+    [
+      "melbourne",
+      4
+    ]
+  ],
+  "options": {
+    "title": "Trend Analyser",
+    "pieHole": 0.4,
+    "is3D": "true"
+  }
 }
 ```
