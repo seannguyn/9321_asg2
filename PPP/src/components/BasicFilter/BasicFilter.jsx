@@ -22,14 +22,7 @@ export default class BasicFilter extends Component {
 
   componentDidMount() {
     axios.get(Common.BACKEND_URL + '/basicfilters')
-      .then((response) => {
-        this.setState(
-          {
-            ...this.state,
-            filter: response.data.data,
-          }
-        )
-      })
+      .then((response) => this.setState({ filter: response.data.data }))
       .catch((e) => {
         let errorMsg;
         if (e.response && e.response.data) {
@@ -40,7 +33,6 @@ export default class BasicFilter extends Component {
           errorMsg = 'Opps! Unknow error happens...';
         }
         this.setState({
-          ...this.state,
           // filter: {
           //   "max_bedroom": 31,
           //   "max_bathroom": 5,
@@ -58,6 +50,9 @@ export default class BasicFilter extends Component {
 
   handleChange = event => {
     this.setState({ [event.target.name]: event.target.value });
+    if (this.props.onChange) {
+      this.props.onChange(event.target.name, event.target.value);
+    }
   };
 
   render() {
@@ -72,7 +67,6 @@ export default class BasicFilter extends Component {
           message={this.state.snackBarMsg}
           onClose={() => {
             this.setState({
-              ...this.state,
               isSnackBarOpen: false,
               snackBarMsg: null,
             });

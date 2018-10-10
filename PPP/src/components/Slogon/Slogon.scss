@@ -1,8 +1,10 @@
 .slogon-view {
     display: table;
     .app-logo {
-        // display: block;
-        // margin: auto;
+        display: block;
+        margin: auto;
+        width: 150px;
+        height: 150px;
     }
 
     .app-name {

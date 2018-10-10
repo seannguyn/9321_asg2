@@ -1,0 +1,28 @@
+.predict-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../images/bg.png');
+    background-size: cover;
+    background-position: center;
+    padding: 20px;
+
+    .predict-result {
+        color: white;
+        text-align: center;
+        font-size: 14pt;
+        font-family: 'Comic Sans MS';
+        margin-top: 10px;
+
+        .price {
+            font-size: 19pt;
+            color: red;
+        }
+        .filter {
+            color: orange;
+        }
+    }
+
+}

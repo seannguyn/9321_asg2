@@ -16,15 +16,7 @@ export default class Home extends Component {
 
   componentDidMount() {
     axios.get(Common.BACKEND_URL + '/suburbs')
-      .then((response) => {
-        this.setState(
-          {
-            ...this.state,
-            suburbs: response.data.data,
-          }
-        )
-        console.log(response.data.data)
-      })
+      .then((response) => this.setState({ suburbs: response.data.data }))
       .catch((e) => {
         let errorMsg;
         if (e.response && e.response.data) {
@@ -35,7 +27,6 @@ export default class Home extends Component {
           errorMsg = 'Opps! Unknow error happens...';
         }
         this.setState({
-          ...this.state,
           // suburbs: {
           //   "1": {
           //     "suburb": "Abbotsford",
@@ -50,6 +41,27 @@ export default class Home extends Component {
           snackBarMsg: errorMsg,
         });
       });
+  }
+
+  onSubmit = () => {
+    if (this.state.selectedBedrooms
+      && this.state.selectedBathrooms
+      && this.state.selectedCarSpaces
+      && this.state.selectedType
+      && this.state.selectedSuburb) {
+      this.props.history.push(`/predict/${btoa(unescape(encodeURIComponent(JSON.stringify({
+        bedroom: this.state.selectedBedrooms,
+        bathroom: this.state.selectedBathrooms,
+        carpark: this.state.selectedCarSpaces,
+        type: this.state.selectedType,
+        suburb: this.state.selectedSuburb,
+      }))))}`);
+    } else {
+      this.setState({
+        isSnackBarOpen: true,
+        snackBarMsg: 'Please select all the selections',
+      });
+    }
   }
 
   render() {
@@ -73,14 +85,15 @@ export default class Home extends Component {
             message={this.state.snackBarMsg}
             onClose={() => {
               this.setState({
-                ...this.state,
                 isSnackBarOpen: false,
                 snackBarMsg: null,
               });
             }}
           />
           <div className='predict-filters'>
-            <BasicFilter />
+            <BasicFilter
+              onChange={(key, value) => this.setState({ [key]: value })}
+            />
             {this.state.suburbs ?
               <div className='basic-filter'>
                 <div className='basic-filter-title'>
@@ -99,7 +112,7 @@ export default class Home extends Component {
                       return (
                         <MenuItem
                           key={key}
-                          value={key}
+                          value={value.suburb}
                         >
                           {value.suburb + ', ' + value.postcode}
                         </MenuItem>
@@ -116,9 +129,7 @@ export default class Home extends Component {
             variant='extendedFab'
             size='large'
             color='primary'
-            onClick={() => {
-              // TODO call predict API
-            }}
+            onClick={this.onSubmit}
           >
             Reveal Prediction
           </Button>
