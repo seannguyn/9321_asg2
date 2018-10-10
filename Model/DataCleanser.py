@@ -107,7 +107,7 @@ class DataCleanser(object):
             if (counter==len(sortedDataList) or counter == 4):
                 break
 
-        return dataList_1
+        return result
 
     def processSupermarket(self, dataList):
         dataList_1 = []
