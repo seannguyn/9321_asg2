@@ -89,7 +89,7 @@ class Predictor(object):
 
 #         return result
 
-def computePrice(self,room, bath, carpark, houseType, suburb):
+    def computePrice(self,room, bath, carpark, houseType, suburb):
 
         result=[]
         for key in self.suburb_meta.keys():
