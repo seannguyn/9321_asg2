@@ -18,6 +18,11 @@ export default class Slogon extends Component {
         <div className='app-name'>
           Property Price Predictor
         </div>
+        <div className='app-desc'>
+          Trying to find a property to purchase in Melbourne?<br />
+          Let us know what you're looking for and<br />
+          we'll suggest how much it will cost to but your dream home!<br />
+        </div>
       </div>
     );
   }

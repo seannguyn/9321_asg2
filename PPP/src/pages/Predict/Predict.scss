@@ -1,0 +1,73 @@
+.predict-page {
+    background-image: url('../../images/banner.png');
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+    background-position: top;
+    text-align: center;
+    font-family: 'Comic Sans MS';
+    padding: 50px;
+    min-width: 680px;
+
+    .predict-title {
+        position: relative;
+        display: inline-block;
+        font-size: 13pt;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        background-color: #960001;
+        padding: 10px;
+        color: white;
+        z-index: 1;
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+    .predict-content {
+        position: absolute;
+        top: 420px;
+        left: 0;
+        right: 0;
+        z-index: 0;
+        .predict-content-box {
+            display: inline-block;
+            border-style: solid;
+            border-color: orange;
+            border-width: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            .predict-price {
+                font-size: 18pt;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .section-margin {
+        margin-top: 70px;
+    }
+
+    .section-title {
+        position: relative;
+        // display: inline-block;
+        font-size: 13pt;
+        margin-top: 60px;
+        margin-bottom: 30px;
+        background-color: #960001;
+        padding: 10px;
+        color: white;
+    }
+
+    .grid-item {
+        .grid-img {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+        }
+        .grid-rating {
+            font-size: 7pt;
+        }
+        .grid-addr {
+            font-size: 9pt;
+        }
+    }
+
+}
