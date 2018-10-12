@@ -4,6 +4,8 @@ import * as Common from '../../Common';
 import Slogon from '../../components/Slogon';
 import { CircularProgress, Snackbar, GridList, List, } from '@material-ui/core';
 import axios from 'axios';
+import PPPMap from '../../components/Map/PPPMap';
+import { MapProvider } from "../../components/Map/MapContext";
 
 export default class Home extends Component {
   static displayName = 'Home';
@@ -19,7 +21,6 @@ export default class Home extends Component {
       { params: { ...this.data } }
     )
       .then((response) => {
-        console.log(response.data.data)
         this.setState({ data: response.data.data });
       })
       .catch((e) => {
@@ -44,183 +45,185 @@ export default class Home extends Component {
 
   render() {
     return (
-      <div className='predict-page'>
-        <Slogon
-          style={{
-            margin: 'auto',
-          }}
-        />
-        <Snackbar
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          autoHideDuration={1500}
-          open={this.state.isSnackBarOpen}
-          message={this.state.snackBarMsg}
-          onClose={() => {
-            this.setState({
-              isSnackBarOpen: false,
-              snackBarMsg: null,
-            });
-          }}
-        />
-        {
-          this.state.data ?
-            <div>
-              <div className='predict-title'>
-                Price Prediction
-              </div>
+      <MapProvider>
+        <div className='predict-page'>
+          <Slogon
+            style={{
+              margin: 'auto',
+            }}
+          />
+          <Snackbar
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            autoHideDuration={1500}
+            open={this.state.isSnackBarOpen}
+            message={this.state.snackBarMsg}
+            onClose={() => {
+              this.setState({
+                isSnackBarOpen: false,
+                snackBarMsg: null,
+              });
+            }}
+          />
+          {
+            this.state.data ?
               <div>
-                <div className='predict-content'>
-                  <div className='predict-content-box'>
-                    <div className='predict-price'>
-                      ${this.getDisplayPrice(this.state.data.prediction.main.price)}
-                    </div>
-                    <div className='filter-info'>
-                      For a {this.data.bedroom} bed, {this.data.bathroom} bath, {this.data.carpark} car {this.data.type} in {this.data.suburb}
+                <div className='predict-title'>
+                  Price Prediction
+              </div>
+                <div>
+                  <div className='predict-content'>
+                    <div className='predict-content-box'>
+                      <div className='predict-price'>
+                        ${this.getDisplayPrice(this.state.data.prediction.main.price)}
+                      </div>
+                      <div className='filter-info'>
+                        For a {this.data.bedroom} bed, {this.data.bathroom} bath, {this.data.carpark} car {this.data.type} in {this.data.suburb}
+                      </div>
                     </div>
                   </div>
                 </div>
+                <div className='section-margin' />
+                <div className='section-title'>
+                  Mapview
               </div>
-              <div className='section-margin' />
-              <div className='section-title'>
-                Mapview
+                <PPPMap data={this.state.data} />
+                <div className='section-title'>
+                  Nearby Restaurants
               </div>
-              <div className='mapview' style={{ width: `750px`, height: `750px`, border: '2px solid red' }}>Well, i'm a Mapview</div>
-              <div className='section-title'>
-                Nearby Restaurants
-              </div>
-              <GridList
-                spacing={80}
-                style={{ height: '370px' }}
-                cols={6}
-              >
-                {
-                  this.state.data.restaurant.map(item => (
-                    <div className='grid-item'>
-                      <img className='grid-img'
-                        src={item.photo} />
-                      <div>{item.name}</div>
-                      <div className='grid-addr'>
-                        {item.vicinity}
+                <GridList
+                  spacing={80}
+                  style={{ height: '370px' }}
+                  cols={6}
+                >
+                  {
+                    this.state.data.restaurant.map(item => (
+                      <div className='grid-item'>
+                        <img className='grid-img'
+                          src={item.photo} />
+                        <div>{item.name}</div>
+                        <div className='grid-addr'>
+                          {item.vicinity}
+                        </div>
+                        <div className='grid-rating'>
+                          {(() => {
+                            let rating = '';
+                            for (let i = 1; i < item.rating; i++) {
+                              rating += '★';
+                            }
+                            if (!Number.isInteger(item.rating)) {
+                              rating += '☆';
+                            }
+                            return rating;
+                          })()}
+                        </div>
                       </div>
-                      <div className='grid-rating'>
-                        {(() => {
-                          let rating = '';
-                          for (let i = 1; i < item.rating; i++) {
-                            rating += '★';
-                          }
-                          if (!Number.isInteger(item.rating)) {
-                            rating += '☆';
-                          }
-                          return rating;
-                        })()}
-                      </div>
-                    </div>
-                  ))
-                }
-              </GridList>
-              <div className='section-title'>
-                Nearby Schools
+                    ))
+                  }
+                </GridList>
+                <div className='section-title'>
+                  Nearby Schools
               </div>
-              <List
+                <List
+                  style={{
+                    marginTop: '-30px',
+                    marginBottom: '-50px',
+                  }}
+                >
+                  {
+                    this.state.data.supermarket.map(item => (
+                      <div className='school-item'>
+                        <div className='school-name'>{item.name}</div>
+                        <div className='school-rating'>{item.rating}/5</div>
+                        <div className='school-addr'>{item.vicinity}</div>
+                      </div>
+                    ))
+                  }
+                </List>
+                <div className='section-title'>
+                  Nearby Hospitals
+              </div>
+                <List
+                  style={{
+                    marginTop: '-30px',
+                    marginBottom: '-50px',
+                  }}
+                >
+                  {
+                    this.state.data.hospital.map(item => (
+                      <div className='hospital-item'>
+                        <div className='hospital-name'>{item.name}</div>
+                        <div className='hospital-addr'>{item.vicinity}</div>
+                      </div>
+                    ))
+                  }
+                </List>
+                <div className='section-title'>
+                  Nearby Supermarkets
+              </div>
+                <GridList
+                  spacing={80}
+                  style={{ height: '370px' }}
+                  cols={6}
+                >
+                  {
+                    this.state.data.supermarket.map(item => (
+                      <div className='grid-item'>
+                        <img className='grid-img'
+                          src={item.photo} />
+                        <div>{item.name}</div>
+                        <div className='grid-addr'>
+                          {item.vicinity}
+                        </div>
+                        <div className='grid-rating'>
+                          {(() => {
+                            let rating = '';
+                            for (let i = 1; i < item.rating; i++) {
+                              rating += '★';
+                            }
+                            if (!Number.isInteger(item.rating)) {
+                              rating += '☆';
+                            }
+                            return rating;
+                          })()}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </GridList>
+                <div className='section-title'
+                  style={{ backgroundColor: 'chocolate' }}
+                >
+                  Other Suggested Areas
+              </div>
+                <GridList
+                  spacing={80}
+                  style={{ flexWrap: 'nowrap' }}
+                >
+                  {
+                    this.state.data.prediction.recommendation.map(item => (
+                      <div className='grid-item'>
+                        <img className='grid-img'
+                          src={item.photo} />
+                        <div>{item.suburb}</div>
+                        <div className='grid-addr'>
+                          ${this.getDisplayPrice(item.price)}
+                        </div>
+                      </div>
+                    ))
+                  }
+                </GridList>
+              </div>
+              :
+              <CircularProgress
+                size={50}
                 style={{
-                  marginTop: '-30px',
-                  marginBottom: '-50px',
+                  display: 'table',
+                  margin: 'auto',
                 }}
-              >
-                {
-                  this.state.data.supermarket.map(item => (
-                    <div className='school-item'>
-                      <div className='school-name'>{item.name}</div>
-                      <div className='school-rating'>{item.rating}/5</div>
-                      <div className='school-addr'>{item.vicinity}</div>
-                    </div>
-                  ))
-                }
-              </List>
-              <div className='section-title'>
-                Nearby Hospitals
-              </div>
-              <List
-                style={{
-                  marginTop: '-30px',
-                  marginBottom: '-50px',
-                }}
-              >
-                {
-                  this.state.data.hospital.map(item => (
-                    <div className='hospital-item'>
-                      <div className='hospital-name'>{item.name}</div>
-                      <div className='hospital-addr'>{item.vicinity}</div>
-                    </div>
-                  ))
-                }
-              </List>
-              <div className='section-title'>
-                Nearby Supermarkets
-              </div>
-              <GridList
-                spacing={80}
-                style={{ height: '370px' }}
-                cols={6}
-              >
-                {
-                  this.state.data.supermarket.map(item => (
-                    <div className='grid-item'>
-                      <img className='grid-img'
-                        src={item.photo} />
-                      <div>{item.name}</div>
-                      <div className='grid-addr'>
-                        {item.vicinity}
-                      </div>
-                      <div className='grid-rating'>
-                        {(() => {
-                          let rating = '';
-                          for (let i = 1; i < item.rating; i++) {
-                            rating += '★';
-                          }
-                          if (!Number.isInteger(item.rating)) {
-                            rating += '☆';
-                          }
-                          return rating;
-                        })()}
-                      </div>
-                    </div>
-                  ))
-                }
-              </GridList>
-              <div className='section-title'
-                style={{ backgroundColor: 'chocolate' }}
-              >
-                Other Suggested Areas
-              </div>
-              <GridList
-                spacing={80}
-                style={{ flexWrap: 'nowrap' }}
-              >
-                {
-                  this.state.data.prediction.recommendation.map(item => (
-                    <div className='grid-item'>
-                      <img className='grid-img'
-                        src={item.photo} />
-                      <div>{item.suburb}</div>
-                      <div className='grid-addr'>
-                        ${this.getDisplayPrice(item.price)}
-                      </div>
-                    </div>
-                  ))
-                }
-              </GridList>
-            </div>
-            :
-            <CircularProgress
-              size={50}
-              style={{
-                display: 'table',
-                margin: 'auto',
-              }}
-            />
-        }
-      </div>
+              />
+          }
+        </div>
+      </MapProvider>
     );
   }
 }

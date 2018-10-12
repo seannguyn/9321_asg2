@@ -202,9 +202,9 @@ class basicFilters(Resource):
              "code": 200,
             "msg": "basic filters",
             "data": {
-                "max_bedroom": 31,
-                "max_bathroom": 5,
-                "max_carspace": 3,
+                "max_bedroom": 6,
+                "max_bathroom": 6,
+                "max_carspace": 4,
                 "types" : [
                     "house",
                     "unit"
