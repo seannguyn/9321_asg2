@@ -11,6 +11,8 @@
     "react": "^16.4.1",
     "react-document-title": "^2.0.3",
     "react-dom": "^16.4.1",
+    "react-google": "0.0.3",
+    "react-google-maps": "^9.4.5",
     "react-router-dom": "^4.2.2"
   },
   "devDependencies": {
