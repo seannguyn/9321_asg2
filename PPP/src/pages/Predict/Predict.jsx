@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './Predict.scss';
 import * as Common from '../../Common';
 import Slogon from '../../components/Slogon';
-import { CircularProgress, Snackbar, GridList, GridListTile } from '@material-ui/core';
+import { CircularProgress, Snackbar, GridList, List, } from '@material-ui/core';
 import axios from 'axios';
 
 export default class Home extends Component {
@@ -84,13 +84,14 @@ export default class Home extends Component {
               <div className='section-title'>
                 Mapview
               </div>
-              <div className='mapview' style={{ width: `750px`, height: `750px`, border:'2px solid red' }}>Well, i'm a Mapview</div>
+              <div className='mapview' style={{ width: `750px`, height: `750px`, border: '2px solid red' }}>Well, i'm a Mapview</div>
               <div className='section-title'>
                 Nearby Restaurants
               </div>
               <GridList
                 spacing={80}
-                cols={4}
+                style={{ height: '370px' }}
+                cols={6}
               >
                 {
                   this.state.data.restaurant.map(item => (
@@ -118,11 +119,49 @@ export default class Home extends Component {
                 }
               </GridList>
               <div className='section-title'>
+                Nearby Schools
+              </div>
+              <List
+                style={{
+                  marginTop: '-30px',
+                  marginBottom: '-50px',
+                }}
+              >
+                {
+                  this.state.data.supermarket.map(item => (
+                    <div className='school-item'>
+                      <div className='school-name'>{item.name}</div>
+                      <div className='school-rating'>{item.rating}/5</div>
+                      <div className='school-addr'>{item.vicinity}</div>
+                    </div>
+                  ))
+                }
+              </List>
+              <div className='section-title'>
+                Nearby Hospitals
+              </div>
+              <List
+                style={{
+                  marginTop: '-30px',
+                  marginBottom: '-50px',
+                }}
+              >
+                {
+                  this.state.data.hospital.map(item => (
+                    <div className='hospital-item'>
+                      <div className='hospital-name'>{item.name}</div>
+                      <div className='hospital-addr'>{item.vicinity}</div>
+                    </div>
+                  ))
+                }
+              </List>
+              <div className='section-title'>
                 Nearby Supermarkets
               </div>
               <GridList
                 spacing={80}
-                cols={4}
+                style={{ height: '370px' }}
+                cols={6}
               >
                 {
                   this.state.data.supermarket.map(item => (
