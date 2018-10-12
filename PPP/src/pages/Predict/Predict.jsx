@@ -84,7 +84,7 @@ export default class Home extends Component {
               <div className='section-title'>
                 Mapview
               </div>
-              <div className='mapview'>Well, i'm a Mapview</div>
+              <div className='mapview' style={{ width: `750px`, height: `750px`, border:'2px solid red' }}>Well, i'm a Mapview</div>
               <div className='section-title'>
                 Nearby Restaurants
               </div>

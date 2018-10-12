@@ -6,6 +6,7 @@
     "classnames": "^2.2.5",
     "enquire-js": "^0.1.2",
     "foundation-symbol": "^0.1.0",
+    "google-maps-react": "^2.0.2",
     "prop-types": "^15.5.8",
     "react": "^16.4.1",
     "react-document-title": "^2.0.3",

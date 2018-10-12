@@ -71,10 +71,6 @@ class PredictPrice(Resource):
         houseType   = args.get('type')
         suburb      = args.get('suburb')
 
-        # predict price
-        prediction = predictor.computePrice(int(bedroom),int(bathroom),int(carpark),houseType,suburb)
-        processedPrediction = processor.processPrediction(prediction, db)
-
         # get geocode
         resultLocation = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address="+suburb+",Victoria"+"&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
         dataLocation = json.loads(resultLocation.content)
@@ -82,6 +78,14 @@ class PredictPrice(Resource):
         lat = dataLocation['results'][0]['geometry']['location']['lat']
         lng = dataLocation['results'][0]['geometry']['location']['lng']
         location = str(lat)+","+str(lng)
+
+        # predict price
+        prediction = predictor.computePrice(int(bedroom),int(bathroom),int(carpark),houseType,suburb)
+        processedPrediction = processor.processPrediction(prediction, db)
+        processedPrediction['main']['location'] = {
+            'lat':lat,
+            'lng':lng
+        }
 
         # get near by restarant
         resultRestaurant = requests.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+location+"&radius=2000&type=restaurant&key=AIzaSyB4x8PJO2adnI_tjpv3dAOBXD-5buVnQlY")
