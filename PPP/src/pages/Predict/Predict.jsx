@@ -39,7 +39,7 @@ export default class Home extends Component {
   }
 
   getDisplayPrice(price) {
-    return price.toFixed(1).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    return price.toFixed(1).replace(/\d(?=(\d{3})+\.)/g, '$&,').slice(0, -2);
   }
 
   render() {
@@ -149,16 +149,20 @@ export default class Home extends Component {
                   ))
                 }
               </GridList>
-              <div className='section-title'>
+              <div className='section-title'
+                style={{ backgroundColor: 'chocolate' }}
+              >
                 Other Suggested Areas
               </div>
               <GridList
-                spacing={20}
-                cols={this.state.data.prediction.recommendation.length + 1}
+                spacing={80}
+                style={{ flexWrap: 'nowrap' }}
               >
                 {
                   this.state.data.prediction.recommendation.map(item => (
-                    <div>
+                    <div className='grid-item'>
+                      <img className='grid-img'
+                        src={item.photo} />
                       <div>{item.suburb}</div>
                       <div className='grid-addr'>
                         ${this.getDisplayPrice(item.price)}
