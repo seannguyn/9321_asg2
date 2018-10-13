@@ -90,10 +90,12 @@ class Predictor(object):
 #         return result
 
     def computePrice(self,room, bath, carpark, houseType, suburb):
-
+        houseTypeWeight = 7
+        if houseType != "house":
+            houseTypeWeight = 1
         result=[]
         for key in self.suburb_meta.keys():
-            price=2 ** self.model.predict([[room, carpark, 7, bath,
+            price=2 ** self.model.predict([[room, carpark, houseTypeWeight, bath,
                                             self.suburb_meta[key]["dis"],
                                             self.suburb_meta[key]["la"],
                                             self.suburb_meta[key]["ln"]]])[0][0]
