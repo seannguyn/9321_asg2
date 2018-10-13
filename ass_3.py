@@ -115,6 +115,9 @@ class PredictPrice(Resource):
 
         saveTrend(int(bedroom),int(bathroom),int(carpark),suburb)
 
+        # get all transaction
+        processedTransaction = rr.groupBy("melbourne_housing","Suburb")
+
         main_data = {
             "code"          : 200,
             "msg"           : "Predicted suburb successfully",
@@ -124,6 +127,7 @@ class PredictPrice(Resource):
                 "hospital"      : processedHospital,
                 "school"        : processedSchool,
                 "supermarket"   : processedSupermarket,
+                "transaction"   : processedTransaction,
             }
         }
 
@@ -266,6 +270,18 @@ class maxPrice(Resource):
                 "max_price": 999999
             }
         }, 200
+
+
+@api.route('/distribution_transactions')
+class transactions(Resource):
+    def get(self):
+        result = rr.groupBy("melbourne_housing","Suburb")
+        return {
+            "code": 200,
+            "msg": "distributions all transactions",
+            "data": result
+        }, 200
+
 
 if __name__ == '__main__':
     # app.run(host='0', port=8007, debug=True)

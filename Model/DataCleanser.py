@@ -199,3 +199,4 @@ class DataCleanser(object):
         else :
             record = suburb.find_one({"title":"Victoria"})['entry']
             return record
+

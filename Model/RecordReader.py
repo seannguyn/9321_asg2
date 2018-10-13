@@ -1,6 +1,4 @@
 import pandas as pd
-import numpy as np
-from pymongo import MongoClient
 import pprint
 class RecordReader:
     db=None
@@ -47,3 +45,12 @@ class RecordReader:
         # print(pd.DataFrame(records))
         print("Dataframe loads correctly;")
         return pd.DataFrame(records)
+
+    def groupBy(self,title,col):
+        df = self.to_dataframe(title)
+        df = df[[col,"Address"]]
+        df=df.groupby(by=col).count().rename(columns={"Address":"counter"}).reset_index()
+        result=[["Surburb","number of transaction"]]
+        for index, row in df.iterrows():
+            result.append([row[0],row[1]])
+        return result
