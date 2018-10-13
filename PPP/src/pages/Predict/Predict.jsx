@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import './Predict.scss';
 import * as Common from '../../Common';
 import Slogon from '../../components/Slogon';
-import { CircularProgress, Snackbar, GridList, List, } from '@material-ui/core';
+import { CircularProgress, Snackbar, GridList, List, Button} from '@material-ui/core';
 import axios from 'axios';
 import PPPMap from '../../components/Map/PPPMap';
 import { MapProvider } from "../../components/Map/MapContext";
+import uuid from 'uuid';
 
 export default class Home extends Component {
   static displayName = 'Home';
@@ -97,7 +98,7 @@ export default class Home extends Component {
                 >
                   {
                     this.state.data.restaurant.map(item => (
-                      <div className='grid-item'>
+                      <div key={uuid.v4()} className='grid-item'>
                         <img className='grid-img'
                           src={item.photo} />
                         <div>{item.name}</div>
@@ -131,7 +132,7 @@ export default class Home extends Component {
                 >
                   {
                     this.state.data.supermarket.map(item => (
-                      <div className='school-item'>
+                      <div key={uuid.v4()} className='school-item'>
                         <div className='school-name'>{item.name}</div>
                         <div className='school-rating'>{item.rating}/5</div>
                         <div className='school-addr'>{item.vicinity}</div>
@@ -150,7 +151,7 @@ export default class Home extends Component {
                 >
                   {
                     this.state.data.hospital.map(item => (
-                      <div className='hospital-item'>
+                      <div key={uuid.v4()} className='hospital-item'>
                         <div className='hospital-name'>{item.name}</div>
                         <div className='hospital-addr'>{item.vicinity}</div>
                       </div>
@@ -167,7 +168,7 @@ export default class Home extends Component {
                 >
                   {
                     this.state.data.supermarket.map(item => (
-                      <div className='grid-item'>
+                      <div key={uuid.v4()} className='grid-item'>
                         <img className='grid-img'
                           src={item.photo} />
                         <div>{item.name}</div>
@@ -201,7 +202,7 @@ export default class Home extends Component {
                 >
                   {
                     this.state.data.prediction.recommendation.map(item => (
-                      <div className='grid-item'>
+                      <div key={uuid.v4()} className='grid-item'>
                         <img className='grid-img'
                           src={item.photo} />
                         <div>{item.suburb}</div>

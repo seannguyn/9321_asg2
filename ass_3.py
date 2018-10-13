@@ -19,6 +19,12 @@ def index():
 
 
 api = Api(app, doc='/swagger/')
+# SET UP MODEL for User
+user = api.model(
+'User',{
+    'username':           fields.String,
+    'password':           fields.String,
+})
 
 # set up mongodb
 # SEAN mLab
@@ -211,6 +217,31 @@ class basicFilters(Resource):
                 ]
             }
         }, 200
+
+@api.route('/login')
+class Login(Resource):
+
+    @api.expect(user)
+    def post(self):
+        data = request.json
+
+        if (db['user'].find_one({"username":data['username']}) == None):
+            return {
+                "login": False,
+                "msg": "User does not exist"
+            }, 200
+
+        else:
+            userData = db['user'].find_one({"username":data['username']})
+            if (userData['password'] == data['password']):
+                return {
+                    "login": True,
+                }, 200
+            else:
+                return {
+                    "login": False,
+                    "msg": "wrong Password"
+                }, 200
 
 @api.route('/suburbs')
 class allSuburb(Resource):

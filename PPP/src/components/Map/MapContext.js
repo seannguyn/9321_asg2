@@ -6,14 +6,12 @@ const reducer = (state, action) => {
 
   switch (action.type) {
     case 'CLOSE_INFOWINDOW':
-      console.log("close window");
       return {
         ...state,
         infoWindow: -1
       }
 
     case 'OPEN_INFOWINDOW':
-      console.log("open window");
       return {
         ...state,
         infoWindow: action.payload
