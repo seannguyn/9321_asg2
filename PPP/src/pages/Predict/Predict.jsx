@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import './Predict.scss';
 import * as Common from '../../Common';
 import Slogon from '../../components/Slogon';
-import { CircularProgress, Snackbar, GridList, GridListTile } from '@material-ui/core';
+import { CircularProgress, Snackbar, GridList, List, } from '@material-ui/core';
 import axios from 'axios';
-import PPPMap from '../../components/Map/PPPMap'
-import {MapProvider} from "../../components/Map/MapContext"
-
+import PPPMap from '../../components/Map/PPPMap';
+import { MapProvider } from "../../components/Map/MapContext";
 
 export default class Home extends Component {
   static displayName = 'Home';
@@ -22,7 +21,6 @@ export default class Home extends Component {
       { params: { ...this.data } }
     )
       .then((response) => {
-        console.log(response.data.data)
         this.setState({ data: response.data.data });
       })
       .catch((e) => {
@@ -71,7 +69,7 @@ export default class Home extends Component {
               <div>
                 <div className='predict-title'>
                   Price Prediction
-                </div>
+              </div>
                 <div>
                   <div className='predict-content'>
                     <div className='predict-content-box'>
@@ -87,14 +85,15 @@ export default class Home extends Component {
                 <div className='section-margin' />
                 <div className='section-title'>
                   Mapview
-                </div>
-                <PPPMap data={this.state.data}/>
+              </div>
+                <PPPMap data={this.state.data} />
                 <div className='section-title'>
                   Nearby Restaurants
-                </div>
+              </div>
                 <GridList
                   spacing={80}
-                  cols={4}
+                  style={{ height: '370px' }}
+                  cols={6}
                 >
                   {
                     this.state.data.restaurant.map(item => (
@@ -122,11 +121,49 @@ export default class Home extends Component {
                   }
                 </GridList>
                 <div className='section-title'>
+                  Nearby Schools
+              </div>
+                <List
+                  style={{
+                    marginTop: '-30px',
+                    marginBottom: '-50px',
+                  }}
+                >
+                  {
+                    this.state.data.supermarket.map(item => (
+                      <div className='school-item'>
+                        <div className='school-name'>{item.name}</div>
+                        <div className='school-rating'>{item.rating}/5</div>
+                        <div className='school-addr'>{item.vicinity}</div>
+                      </div>
+                    ))
+                  }
+                </List>
+                <div className='section-title'>
+                  Nearby Hospitals
+              </div>
+                <List
+                  style={{
+                    marginTop: '-30px',
+                    marginBottom: '-50px',
+                  }}
+                >
+                  {
+                    this.state.data.hospital.map(item => (
+                      <div className='hospital-item'>
+                        <div className='hospital-name'>{item.name}</div>
+                        <div className='hospital-addr'>{item.vicinity}</div>
+                      </div>
+                    ))
+                  }
+                </List>
+                <div className='section-title'>
                   Nearby Supermarkets
-                </div>
+              </div>
                 <GridList
                   spacing={80}
-                  cols={4}
+                  style={{ height: '370px' }}
+                  cols={6}
                 >
                   {
                     this.state.data.supermarket.map(item => (
@@ -157,7 +194,7 @@ export default class Home extends Component {
                   style={{ backgroundColor: 'chocolate' }}
                 >
                   Other Suggested Areas
-                </div>
+              </div>
                 <GridList
                   spacing={80}
                   style={{ flexWrap: 'nowrap' }}

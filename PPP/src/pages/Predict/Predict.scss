@@ -70,4 +70,50 @@
         }
     }
 
+    .school-item {
+        font-size: 15pt;
+        width: 100%;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        .school-name {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex: 45%;
+        }
+        .school-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 10%;
+        }
+        .school-addr {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex: 45%;
+        }
+    }
+
+    .hospital-item {
+        font-size: 15pt;
+        width: 100%;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        .hospital-name {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex: 50%;
+        }
+        .hospital-addr {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex: 50%;
+        }
+    }
+
 }
