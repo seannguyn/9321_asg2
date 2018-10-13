@@ -109,6 +109,10 @@ class LoginDialog extends React.Component {
           login: true
         }
       });
+      const localstorage = {
+        "loggin": true
+      }
+      localStorage.setItem("admin", JSON.stringify(localstorage))
     }
 
   }

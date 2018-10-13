@@ -113,10 +113,7 @@ class PredictPrice(Resource):
         dataSupermarket = json.loads(resultSupermarket.content)
         processedSupermarket = processor.processSupermarket(dataSupermarket['results'])
 
-        saveTrend(int(bedroom),int(bathroom),int(carpark),suburb)
-
-        # get all transaction
-        processedTransaction = rr.groupBy("melbourne_housing","Suburb")
+        saveTrend(int(bedroom),int(bathroom),int(carpark),houseType,suburb)
 
         main_data = {
             "code"          : 200,
@@ -127,7 +124,6 @@ class PredictPrice(Resource):
                 "hospital"      : processedHospital,
                 "school"        : processedSchool,
                 "supermarket"   : processedSupermarket,
-                "transaction"   : processedTransaction,
             }
         }
 
@@ -146,10 +142,15 @@ class trendRecord(Resource):
             data   = []
             init = ["Suburb","Request"]
             data.append(init)
+            suburbObject = {}
 
             for document in cursor:
                 if (document.get('suburb',"") != ""):
                     data.append([document['suburb'],document['requestCount']])
+                    suburbObject[str(document['suburb'])] = {
+                        "house": document['house'],
+                        "unit": document['unit'],
+                    }
 
 
             return {
@@ -160,25 +161,29 @@ class trendRecord(Resource):
                   "pieHole": 0.4,
                   "is3D": "true"
                 },
+                "suburb": suburbObject,
+                "suburbList": totalCount['suburbList']
 
             },200
 
         else:
             return {"message":"no data"},401
 
-def saveTrend(room, bath, carpark, suburb):
+def saveTrend(room, bath, carpark, houseType, suburb):
     trend = db['trendAnalyser']
 
     if (trend.find_one({"total": "total"}) == None):
         total = {}
         total['total'] = "total"
-        total['totalCount'] = 1
+        total['suburbList'] = [suburb]
 
         # insert
         trend.insert_one(total)
     else:
         total = trend.find_one({"total": "total"})
-        total['totalCount'] = int(total['totalCount']) + 1
+
+        if (suburb not in total['suburbList']):
+            total['suburbList'].append(suburb)
 
         trend.update({"total": "total"}, total)
 
@@ -188,7 +193,13 @@ def saveTrend(room, bath, carpark, suburb):
 
         record = {}
         record['suburb'] = suburb
-        record['request'] = [{"room": room, "bath": bath, "carpark": carpark}]
+        if (houseType == 'house'):
+            record['house'] = {"room": room, "bath": bath, "carpark": carpark, "count": 1}
+            record['unit'] = {}
+        elif (houseType == 'unit'):
+            record['house'] = {}
+            record['unit'] = {"room": room, "bath": bath, "carpark": carpark, "count": 1}
+
         record['requestCount'] = 1
 
         # insert
@@ -200,7 +211,23 @@ def saveTrend(room, bath, carpark, suburb):
 
         record = trend.find_one({"suburb": suburb})
         record['requestCount'] = int(record['requestCount']) + 1
-        record['request'].append({"room": room, "bath": bath, "carpark":carpark})
+        if (houseType == 'house'):
+            if (record['house'].get("count","") != ""):
+                record['house']['room']     = ( record['house']['room']     * record['house']['count'] + room )     / (record['house']['count'] + 1)
+                record['house']['bath']     = ( record['house']['bath']     * record['house']['count'] + bath )     / (record['house']['count'] + 1)
+                record['house']['carpark']  = ( record['house']['carpark']  * record['house']['count'] + carpark )  / (record['house']['count'] + 1)
+                record['house']['count']    = ( record['house']['count'] + 1)
+            else:
+                record['house'] = {"room": room, "bath": bath, "carpark": carpark, "count": 1}
+        elif (houseType == 'unit'):
+            if (record['unit'].get("count","") != ""):
+                record['unit']['room']     = ( record['unit']['room']     * record['unit']['count'] + room )     / (record['unit']['count'] + 1)
+                record['unit']['bath']     = ( record['unit']['bath']     * record['unit']['count'] + bath )     / (record['unit']['count'] + 1)
+                record['unit']['carpark']  = ( record['unit']['carpark']  * record['unit']['count'] + carpark )  / (record['unit']['count'] + 1)
+                record['unit']['count']    = ( record['unit']['count'] + 1)
+            else:
+                record['unit'] = {"room": room, "bath": bath, "carpark": carpark, "count": 1}
+
         trend.replace_one({"suburb": suburb}, record)
 
         return "updated"

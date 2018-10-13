@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import './Slogon.scss';
 import { Button } from '@material-ui/core';
 import LoginDialog from '../../pages/Auth/LoginDialog'
+import {withRouter} from 'react-router-dom';
 
 class Slogon extends Component {
   static displayName = 'Slogon';
@@ -15,9 +16,20 @@ class Slogon extends Component {
   }
 
   openDialog() {
-    this.setState({
-      dialog: true
-    })
+    var admin = JSON.parse(localStorage.getItem("admin"))
+    if (admin != null) {
+      this.props.history.push({
+        pathname: `/metric`,
+        state: {
+          login: true
+        }
+      });
+    } else {
+      this.setState({
+        dialog: true
+      })
+    }
+
   }
 
   closeDialog() {
@@ -52,4 +64,4 @@ class Slogon extends Component {
     );
   }
 }
-export default Slogon;
+export default withRouter(Slogon);
