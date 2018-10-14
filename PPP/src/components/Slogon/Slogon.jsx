@@ -53,7 +53,7 @@ class Slogon extends Component {
           Let us know what you're looking for and<br />
           we'll suggest how much it will cost to but your dream home!<br />
           Or see trending suburb <br />
-        <Button
+        <Button className='app-more'
           color='primary'
           onClick={this.openDialog.bind(this)}
           >

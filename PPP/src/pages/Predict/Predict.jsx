@@ -94,7 +94,7 @@ export default class Home extends Component {
                 <GridList
                   spacing={80}
                   style={{ height: '370px' }}
-                  cols={6}
+                  cols={4}
                 >
                   {
                     this.state.data.restaurant.map(item => (
@@ -164,7 +164,7 @@ export default class Home extends Component {
                 <GridList
                   spacing={80}
                   style={{ height: '370px' }}
-                  cols={6}
+                  cols={4}
                 >
                   {
                     this.state.data.supermarket.map(item => (
@@ -198,7 +198,7 @@ export default class Home extends Component {
               </div>
                 <GridList
                   spacing={80}
-                  style={{ flexWrap: 'nowrap' }}
+                  style={{ height: '370px', flexWrap: 'nowrap' }}
                 >
                   {
                     this.state.data.prediction.recommendation.map(item => (
