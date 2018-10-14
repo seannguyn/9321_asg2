@@ -130,7 +130,7 @@ class PPPMap extends Component {
       )
     } else {
       return (
-       <div style={{ margin:'50px', width: `750px`, height: `750px`}}>
+       <div style={{ margin:'50px', width: `92%`, height: `750px`}}>
          <AirbnbMap
            center={{
              lat: lat,
