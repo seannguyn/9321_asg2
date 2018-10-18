@@ -111,7 +111,7 @@ class Metric extends React.Component {
       })
 
       return (
-        <div className="container" style={{border:'2px solid red'}}>
+        <div className="container">
           <Button
           onClick={this.back.bind(this)}
           variant="contained"
@@ -135,8 +135,8 @@ class Metric extends React.Component {
           data={this.state.data}
           options={this.state.options}
           />
-        <div className="row" style={{border:'2px solid blue'}}>
-          <InputLabel style={{margin: '20px'}}htmlFor="suburb-type">Select</InputLabel>
+        <div className="row">
+          <InputLabel style={{margin: '20px'}}htmlFor="suburb-type">Select Suburb</InputLabel>
           <Select
             value={this.state.suburbChosen}
             onChange={this.onChange.bind(this)}
