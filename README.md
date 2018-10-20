@@ -9,8 +9,9 @@ We accept:
 as input to provide
 - `price` prediction and the nearby `restaurant`, `hospital`, `school`, `supermarket`
 
-## *Advanced funtions (optinal)*
-- Heat map of the number of transaction happening in all suburbs
+## Analysing Trend
+
+Login to the system, and you will be able to see the trending suburbs in Melbourne
 
 ## [Workflow](https://mermaidjs.github.io/mermaid-live-editor/#/view/eyJjb2RlIjoiZ3JhcGggTFI7XG4gICAgMDAtLT58dHJhaW5pbmd8MDIoKGstTk4gbW9kZWwpKVxuICAgIDEwe2Jhc2ljIGZpbHRlcnN9XG4gICAgMTFbbnVtYmVyIG9mIGJhdGhyb29tXS0tPjEwXG4gICAgMTJbbnVtYmVyIG9mIGJlZHJvb21dLS0-MTBcbiAgICAxM1tudW1iZXIgb2YgY2FyIHNwYWNlc10tLT4xMFxuICAgIDE0W3N1YnVyYl0tLT4xNVtpbnB1dF1cbiAgICAxMC0tPjE1XG4gICAgMTAtLT4xN1tpbnB1dF1cbiAgICAxNltwcmljZV0tLT4xN1xuICAgIDE1LS0-MDFcbiAgICAwMFtNZWxib3VybmVfaG91c2luZ19GVUxMLmNzdl0tLT58dHJhaW5pbmd8MDEoKGxpbmVhciByZWdyZXNzaW9uIG1vZGVsKSlcbiAgICAwMS0tPnxwcmVkaWN0fDIwW3ByaWNlXVxuICAgIDE3LS0-MDJcbiAgICAwMi0tPnxwcmVkaWN0fDIxW3N1YnVyYl0iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGVmYXVsdCJ9fQ)
 👆 click it
@@ -35,10 +36,10 @@ graph LR;
 ## API
 We use Flask to build RESTful API.
 #### Authentication
-We need authentication in every API. Specifically, we have a pair in backend:
+We need authentication for Trend Analysis function:
 ```
-    "api_key": "your api key",
-    "api_secret": "your api secret",
+    "username": "your username",
+    "password": "your password",
 ```
 for every API request, the `api_key` field should be added into `Header`. The backend will check the match.
 #### Response Format
