@@ -13,14 +13,14 @@ export default class Home extends Component {
 
   constructor(props) {
     super(props);
+    // this.data = this.props.location.state;
     this.data = JSON.parse(decodeURIComponent(escape(atob(this.props.match.params.data))));
     this.state = {};
   }
 
   componentDidMount() {
-    axios.get(Common.BACKEND_URL + '/predictPrice',
-      { params: { ...this.data } }
-    )
+    console.log(this.data,"data...");
+    axios.post(Common.BACKEND_URL + '/predictPrice',this.data)
       .then((response) => {
         this.setState({ data: response.data.data });
       })
