@@ -45,8 +45,8 @@ class PPPMap extends Component {
   }
 
   handleMapChanged() {
-    this.getMapBounds()
-    this.setMapCenterPoint()
+    // this.getMapBounds()
+    // this.setMapCenterPoint()
     // this.fetchPlacesFromApi()
   }
 
